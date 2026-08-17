@@ -83,7 +83,13 @@
 
       const suffix = outside ? ` · ${outside} hors zone` : "";
       setStatus(true, `${online}/${devices.length} en ligne${suffix}`);
-      if (first) CTMap.fitAll();
+      if (first) {
+        // Arrivée depuis le tableau de bord (index.html?focus=<id>) : on centre
+        // sur ce chameau ; sinon vue d'ensemble.
+        const fid = Number(new URLSearchParams(location.search).get("focus"));
+        if (fid && positionsById[fid]) CTMap.focus(fid);
+        else CTMap.fitAll();
+      }
     } catch (e) {
       setStatus(false, "Hors ligne");
       toast("Erreur de connexion au serveur");

@@ -27,6 +27,11 @@
     el("statusText").textContent = text;
   }
 
+  // Ouvre la carte principale centrée sur ce chameau.
+  function goToCamel(deviceId) {
+    location.href = "index.html?focus=" + encodeURIComponent(deviceId);
+  }
+
   // ---------- Rafraîchissement ----------
   async function refresh() {
     try {
@@ -42,7 +47,7 @@
           const st = Geofence.status(pos, Geofence.get(d.id));
           statusById[d.id] = st;
           if (mapReady) {
-            CTMap.upsert(d, pos, { status: st });
+            CTMap.upsert(d, pos, { status: st, onClick: goToCamel });
             CTMap.setGeofence(d.id, Geofence.get(d.id), st.outside);
           }
         }
@@ -198,7 +203,7 @@
         const alertIcons = badges.map((a) => (ALERT_META[a.type] || {}).icon || "⚠️").join(" ");
         const campTxt = camp ? ` · ${camp.km.toFixed(1)} km du campement` : "";
 
-        return `<div class="db-row${badges.length ? " has-alert" : ""}">
+        return `<div class="db-row${badges.length ? " has-alert" : ""}" data-device="${d.id}">
           <div class="db-main">
             <div class="db-name">${esc(d.name)} ${zoneBadge} ${
           alertIcons ? `<span class="db-alerticons">${alertIcons}</span>` : ""
@@ -211,6 +216,10 @@
         </div>`;
       })
       .join("");
+
+    el("dashCamels").querySelectorAll(".db-row").forEach((node) => {
+      node.addEventListener("click", () => goToCamel(Number(node.dataset.device)));
+    });
   }
 
   // ---------- Init ----------

@@ -73,11 +73,15 @@ const CTMap = (() => {
         className: "camel-label",
       });
       markers[device.id] = m;
+      // Mode navigation : un clic déclenche opts.onClick au lieu d'ouvrir le popup.
+      if (opts.onClick) m.on("click", () => opts.onClick(device.id));
     } else {
       m.setLatLng(latlng);
       m.setIcon(camelIcon(stale, outside));
     }
-    m.bindPopup(popupHtml(device, pos, opts.status), { className: "ct-popup-wrap" });
+    if (!opts.onClick) {
+      m.bindPopup(popupHtml(device, pos, opts.status), { className: "ct-popup-wrap" });
+    }
     m._ctPos = pos;
   }
 
