@@ -44,6 +44,8 @@
       <button class="tab" data-type="polygon" type="button">✏️ Forme libre</button>
     </div>
 
+    <p class="hint" id="editHint">Touchez la carte pour poser le campement 🏕️</p>
+
     <div id="circleCtrls">
       <div class="gf-radius-row">
         <input id="radius" type="range" min="1" max="150" step="1" value="30">
@@ -55,12 +57,14 @@
         <button class="chip" data-km="50" type="button">50 km</button>
         <button class="chip" data-km="100" type="button">100 km</button>
       </div>
-      <button class="chip center-chip" id="centerBtn" type="button">📍 Centrer sur le troupeau</button>
     </div>
 
     <div id="polyCtrls" hidden>
-      <p class="hint">Dessine la zone directement sur la carte, au doigt.</p>
-      <button id="drawStart" class="wide-btn light" type="button">✏️ Dessiner la zone sur la carte</button>
+      <div class="gf-poly-actions">
+        <button id="undoBtn" class="chip" type="button">↩︎ Annuler</button>
+        <button id="clearBtn" class="chip" type="button">🗑️ Effacer</button>
+        <span id="polyCount" class="poly-count">0 point</span>
+      </div>
     </div>
 
     <div class="edit-field">
@@ -72,14 +76,6 @@
       <button class="ghost-btn" id="cancelBtn" type="button">Annuler</button>
       <button class="primary grow" id="saveBtn" type="button">Enregistrer</button>
     </div>
-  </div>
-
-  <!-- Barre du mode dessin -->
-  <div id="drawBar" class="draw-bar" hidden>
-    <span id="drawCount" class="draw-count">0 point</span>
-    <button id="drawUndo" class="chip" type="button">↩︎</button>
-    <button id="drawClear" class="chip" type="button">🗑️</button>
-    <button id="drawDone" class="primary" type="button">✓ Terminer</button>
   </div>
 
   <div id="toast"></div>

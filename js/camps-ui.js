@@ -9,7 +9,6 @@
   let devices = [], positions = {};
   let selectedId = null;
   let draft = null;
-  let drawing = false;
 
   const staticLayers = {}; // campId -> [layer]
   let camelMarkers = [];
@@ -35,11 +34,8 @@
     document.querySelectorAll(".gf-presets .chip").forEach((c) =>
       c.addEventListener("click", () => { draft.geofence.radiusKm = +c.dataset.km; el("radius").value = draft.geofence.radiusKm; refreshCircle(); })
     );
-    el("centerBtn").addEventListener("click", centerOnHerd);
-    el("drawStart").addEventListener("click", enterDraw);
-    el("drawDone").addEventListener("click", exitDraw);
-    el("drawUndo").addEventListener("click", undoPoint);
-    el("drawClear").addEventListener("click", clearPolygon);
+    el("undoBtn").addEventListener("click", undoPoint);
+    el("clearBtn").addEventListener("click", clearPolygon);
 
     renderChips();
     drawAllCamps();
@@ -134,6 +130,7 @@
     el("pageTitle").textContent = draft.id ? draft.name : "Nouveau camp";
     el("campName").value = draft.name;
     el("radius").value = draft.geofence.radiusKm;
+    map.doubleClickZoom.disable(); // le double-clic ne zoome pas pendant l'édition
     syncTypeUI();
     renderMembers();
     drawAllCamps();
@@ -141,11 +138,11 @@
   }
   function closeEdit() { closeEditSilent(); }
   function closeEditSilent() {
-    if (drawing) exitDrawSilent();
     draft = null;
     el("editSheet").hidden = true;
     el("campBar").style.display = "";
     el("pageTitle").textContent = "Camps";
+    if (map.doubleClickZoom) map.doubleClickZoom.enable();
     clearEditLayers();
     drawAllCamps();
   }
@@ -190,6 +187,9 @@
     const isCircle = draft.geofence.type === "circle";
     el("circleCtrls").hidden = !isCircle;
     el("polyCtrls").hidden = isCircle;
+    el("editHint").textContent = isCircle
+      ? "Touchez la carte pour poser le campement 🏕️ (glissez-le pour ajuster)"
+      : "Touchez la carte pour ajouter les points de la zone, puis Enregistrer";
   }
 
   function renderMembers() {
@@ -228,7 +228,7 @@
     else drawPolygon();
     if (fit) fitEdit();
     el("radiusVal").textContent = draft.geofence.radiusKm;
-    updateDrawCount();
+    updatePolyCount();
     updateStatus();
   }
   function drawCircle() {
@@ -243,18 +243,11 @@
     el("radiusVal").textContent = g.radiusKm;
     updateStatus();
   }
-  function centerOnHerd() {
-    const c = herdCenter(draft.members);
-    draft.geofence.lat = c.lat; draft.geofence.lon = c.lon;
-    if (centerMarker) centerMarker.setLatLng([c.lat, c.lon]);
-    refreshCircle();
-    fitEdit();
-  }
   function drawPolygon() {
     const pts = draft.geofence.points;
     if (pts.length >= 2) polyLayer = L.polygon(pts, editStyle()).addTo(map);
     pts.forEach((p, i) => addVertex(p, i));
-    updateDrawCount();
+    updatePolyCount();
   }
   function addVertex(p, i) {
     const m = L.marker(p, { draggable: true, icon: vertexIcon() }).addTo(map);
@@ -262,10 +255,19 @@
     m.on("dblclick", (e) => { L.DomEvent.stop(e); draft.geofence.points.splice(i, 1); redrawPoly(); });
     vertexMarkers.push(m);
   }
+  // Toucher la carte : en cercle -> pose le campement ; en forme libre -> ajoute un point.
   function onMapClick(e) {
-    if (!drawing) return;
-    draft.geofence.points.push([e.latlng.lat, e.latlng.lng]);
-    redrawPoly();
+    if (!draft) return;
+    if (draft.geofence.type === "circle") {
+      draft.geofence.lat = e.latlng.lat;
+      draft.geofence.lon = e.latlng.lng;
+      if (circle && centerMarker) { circle.setLatLng(e.latlng); centerMarker.setLatLng(e.latlng); }
+      else redrawEdit(false);
+      updateStatus();
+    } else {
+      draft.geofence.points.push([e.latlng.lat, e.latlng.lng]);
+      redrawPoly();
+    }
   }
   function redrawPoly() {
     [polyLayer, ...vertexMarkers].forEach((l) => l && map.removeLayer(l));
@@ -275,18 +277,7 @@
   }
   function undoPoint() { if (draft.geofence.points.length) { draft.geofence.points.pop(); redrawPoly(); } }
   function clearPolygon() { draft.geofence.points = []; redrawPoly(); }
-  function updateDrawCount() { const n = draft.geofence.points.length; el("drawCount").textContent = n <= 1 ? `${n} point` : `${n} points`; }
-
-  function enterDraw() {
-    drawing = true;
-    el("editSheet").hidden = true;
-    el("drawBar").hidden = false;
-    updateDrawCount();
-    toast("Touche la carte pour poser les points");
-    setTimeout(() => map.invalidateSize(), 60);
-  }
-  function exitDraw() { exitDrawSilent(); setTimeout(() => { map.invalidateSize(); redrawEdit(true); }, 60); }
-  function exitDrawSilent() { drawing = false; el("drawBar").hidden = true; if (draft) el("editSheet").hidden = false; }
+  function updatePolyCount() { const n = draft.geofence.points.length; el("polyCount").textContent = n <= 1 ? `${n} point` : `${n} points`; }
 
   // ---------- Statut ----------
   function updateStatus() {

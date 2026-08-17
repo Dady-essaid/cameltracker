@@ -700,10 +700,10 @@ body.camps #map, body.trips #map { position: fixed; top: 52px; left: 0; right: 0
   border-top-right-radius: 16px;
   box-shadow: 0 -4px 16px rgba(60, 40, 20, 0.2);
   padding: 12px 14px 16px;
-  max-height: 62vh;
+  max-height: 52vh;
   overflow-y: auto;
 }
-body.camps.drawing .edit-sheet { display: none; }
+.edit-sheet .members { max-height: 132px; overflow-y: auto; }
 
 #campName {
   width: 100%;
