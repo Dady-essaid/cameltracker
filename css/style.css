@@ -695,6 +695,127 @@ header .bell.has-unread { animation: bell-pulse 1.4s ease-in-out infinite; }
 }
 .ap-foot-btn:active { background: var(--sable-fonce); }
 
+/* ---- Tableau de bord ---- */
+body.dash { background: var(--sable); overflow-y: auto; height: auto; }
+/* La carte n'est plus plein écran ici : elle vit dans une carte-conteneur. */
+body.dash #map {
+  position: relative;
+  top: auto; left: auto; right: auto; bottom: auto;
+  width: 100%;
+  height: 240px;
+  border-radius: 14px;
+}
+.dash-wrap {
+  padding: 62px 12px 24px;
+  max-width: 760px;
+  margin: 0 auto;
+}
+.dash-mapcard {
+  border-radius: 14px;
+  box-shadow: var(--ombre);
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+
+/* Synthèse du troupeau */
+.herd-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.herd-stat {
+  background: var(--sable);
+  border-radius: 12px;
+  padding: 12px 14px;
+}
+.herd-stat .hs-val { font-size: 26px; font-weight: 800; color: var(--marron); line-height: 1.1; }
+.herd-stat .hs-val.danger { color: var(--danger); }
+.herd-stat .hs-lab { font-size: 12px; color: var(--marron-clair); font-weight: 600; margin-top: 4px; }
+.herd-stat .hs-sub { font-size: 12px; color: var(--marron-clair); margin-top: 4px; }
+.herd-counts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--sable-fonce);
+  font-size: 13px;
+  color: var(--marron);
+  font-weight: 600;
+}
+.herd-counts .danger { color: var(--danger); }
+
+.dash-card {
+  background: var(--sable-clair);
+  border-radius: 14px;
+  box-shadow: var(--ombre);
+  padding: 12px 14px;
+  margin-bottom: 14px;
+}
+.dash-card h2 {
+  margin: 2px 0 10px;
+  font-size: 15px;
+  color: var(--marron);
+}
+.dash-empty { color: var(--marron-clair); font-size: 13px; padding: 10px 4px; text-align: center; }
+
+/* Alertes actives */
+.dash-alert {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  margin: 6px 0;
+  background: var(--sable);
+  border-radius: 10px;
+  border-left: 4px solid var(--sable-fonce);
+  font-size: 13px;
+}
+.dash-alert.zone { border-left-color: var(--danger); }
+.dash-alert.immobile { border-left-color: var(--ciel); }
+.dash-alert.battery { border-left-color: var(--marron-clair); }
+.dash-alert .da-ic { font-size: 16px; flex: none; }
+.dash-alert .da-name { font-weight: 700; color: var(--marron); flex: none; }
+.dash-alert .da-msg { color: var(--texte); flex: 1; min-width: 0; }
+.dash-alert .da-when { color: var(--marron-clair); font-size: 11px; white-space: nowrap; flex: none; }
+
+/* État des chameaux */
+.db-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 4px;
+  border-bottom: 1px solid var(--sable-fonce);
+}
+.db-row:last-child { border-bottom: none; }
+.db-row.has-alert .db-name { color: var(--danger); }
+.db-main { flex: 1; min-width: 0; }
+.db-name { font-weight: 700; color: var(--marron); font-size: 14px; }
+.db-sub { font-size: 12px; color: var(--marron-clair); margin-top: 2px; }
+.db-alerticons { font-size: 13px; }
+.db-badge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 8px;
+  vertical-align: middle;
+}
+.db-badge.out { background: var(--danger); color: #fff; }
+.db-badge.in { background: rgba(79, 138, 61, 0.18); color: var(--ok); }
+.db-batwrap { display: flex; align-items: center; gap: 8px; flex: none; }
+.db-bat {
+  width: 64px; height: 10px;
+  background: var(--sable-fonce);
+  border-radius: 6px;
+  overflow: hidden;
+  display: inline-block;
+}
+.db-bat-fill { display: block; height: 100%; background: var(--ok); border-radius: 6px; }
+.db-bat.mid .db-bat-fill { background: var(--ciel); }
+.db-bat.low .db-bat-fill { background: var(--danger); }
+.db-bat-val { font-size: 12px; font-weight: 700; color: var(--marron); min-width: 34px; text-align: right; }
+.db-nobat { color: var(--marron-clair); }
+
 /* ---- Écran large : liste à gauche, panneau fixe ---- */
 @media (min-width: 820px) {
   #panel {

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#6b4a2b">
+  <title>CamelTracker — Tableau de bord</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="dash">
+
+  <header>
+    <a href="index.html" class="back" title="Retour à la carte">←</a>
+    <h1>Tableau de bord</h1>
+    <div class="status">
+      <span id="statusDot" class="dot"></span>
+      <span id="statusText">…</span>
+    </div>
+  </header>
+
+  <main class="dash-wrap">
+    <!-- Mini-carte du troupeau -->
+    <section class="dash-mapcard">
+      <div id="map"></div>
+    </section>
+
+    <!-- État du troupeau : dispersion + plus éloigné -->
+    <section class="dash-card">
+      <h2>Le troupeau</h2>
+      <div class="herd-grid">
+        <div class="herd-stat">
+          <div class="hs-val" id="herdSpread">—</div>
+          <div class="hs-lab">Étendue du troupeau</div>
+          <div class="hs-sub" id="herdSpreadSub"></div>
+        </div>
+        <div class="herd-stat">
+          <div class="hs-val" id="herdFar">—</div>
+          <div class="hs-lab">Plus loin du campement</div>
+          <div class="hs-sub" id="herdFarSub"></div>
+        </div>
+      </div>
+      <div class="herd-counts" id="herdCounts"></div>
+    </section>
+
+    <!-- Alertes actives -->
+    <section class="dash-card">
+      <h2>Alertes actives</h2>
+      <div id="dashAlerts" class="dash-alerts"></div>
+    </section>
+
+    <!-- État de chaque chameau -->
+    <section class="dash-card">
+      <h2>Chameaux</h2>
+      <div id="dashCamels" class="dash-camels"></div>
+    </section>
+  </main>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/geofence.js"></script>
+  <script src="js/alerts.js"></script>
+  <script src="js/map.js"></script>
+  <script src="js/dashboard.js"></script>
+</body>
+</html>

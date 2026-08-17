@@ -26,8 +26,11 @@ carte satellite, à partir d'un serveur **Traccar**.
   (seuil en heures) et **batterie faible** du tracker (seuil %). Seuils
   réglables, badge de non-lus, toast en direct, historique des alertes
   résolues, et notifications système du navigateur (facultatives).
-
-À venir : tableau de bord.
+- ✅ **Tableau de bord** : synthèse du troupeau — mini-carte (tous les
+  chameaux + zones d'un coup d'œil), **dispersion** (étendue du troupeau) et
+  **chameau le plus éloigné de son campement**, alertes actives, et état par
+  chameau (distance au campement, batterie, vitesse, signal) ; rafraîchi
+  automatiquement.
 
 ## Démarrer en local
 
@@ -72,6 +75,7 @@ cameltracker/
   index.html        carte temps réel (MVP)
   history.html      historique des trajets + playback
   geofence.html     zones par chameau (rayon + campement)
+  dashboard.html    tableau de bord (mini-carte + dispersion + alertes)
   config.js         configuration (URL Traccar, mode démo)
   css/style.css     thème désert, mobile-first
   js/
