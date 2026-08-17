@@ -21,51 +21,11 @@
       <span id="statusDot" class="dot"></span>
       <span id="statusText">…</span>
     </div>
-    <button id="bell" class="nav bell" title="Alertes" aria-label="Alertes">🔔<span id="alertBadge" class="badge" hidden>0</span></button>
+    <a href="notifications.html" class="nav bell" id="bell" title="Alertes" aria-label="Alertes">🔔<span id="alertBadge" class="badge" hidden>0</span></a>
     <a href="dashboard.html" class="nav" title="Tableau de bord">📊</a>
     <a href="camps.html" class="nav" title="Camps (bases + déplacement)">🏕️</a>
     <a href="history.html" class="nav" title="Historique des trajets">🕘</a>
   </header>
-
-  <!-- Panneau des alertes -->
-  <div id="alertsPanel" class="alerts-panel" hidden>
-    <div class="ap-head">
-      <b>🔔 Alertes</b>
-      <button id="alertSettingsBtn" class="ap-icon" title="Réglages des alertes">⚙︎</button>
-      <button id="alertCloseBtn" class="ap-icon" title="Fermer">✕</button>
-    </div>
-
-    <!-- Réglages des seuils (masqués par défaut) -->
-    <div id="alertSettings" class="ap-settings" hidden>
-      <label class="ap-toggle">
-        <span>Alertes activées</span>
-        <input type="checkbox" id="alSetEnabled">
-      </label>
-      <label class="ap-toggle">
-        <span>Sortie de zone</span>
-        <input type="checkbox" id="alSetZone">
-      </label>
-      <label class="ap-toggle">
-        <span>S'éloigne du groupe</span>
-        <input type="checkbox" id="alSetCohesion">
-      </label>
-      <label class="ap-num">
-        <span>Batterie faible sous</span>
-        <span><input type="number" id="alSetBattery" min="1" max="100" step="1"> %</span>
-      </label>
-      <label class="ap-num">
-        <span>Immobile depuis</span>
-        <span><input type="number" id="alSetImmobility" min="1" max="72" step="1"> h</span>
-      </label>
-      <button id="alSetNotif" class="ap-notif">Activer les notifications système</button>
-    </div>
-
-    <div id="alertsList" class="ap-list"></div>
-    <div class="ap-foot">
-      <button id="alertMarkRead" class="ap-foot-btn">Tout marquer comme lu</button>
-      <button id="alertClear" class="ap-foot-btn">Effacer les résolues</button>
-    </div>
-  </div>
 
   <!-- Carte -->
   <div id="map"></div>

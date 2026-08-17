@@ -1,7 +1,7 @@
 // sw.js — service worker (tuiles hors ligne + app shell)
 // Stratégie : réseau d'abord pour le code (mises à jour immédiates),
 // cache d'abord pour les tuiles satellite (utile hors ligne / connexion lente).
-const SHELL = "ct-shell-v4";
+const SHELL = "ct-shell-v5";
 const TILES = "ct-tiles-v1";
 
 const SHELL_FILES = [
@@ -10,6 +10,7 @@ const SHELL_FILES = [
   "history.html",
   "dashboard.html",
   "camps.html",
+  "notifications.html",
   "css/style.css",
   "config.js",
   "js/api.js",
@@ -21,6 +22,7 @@ const SHELL_FILES = [
   "js/camps-ui.js",
   "js/alerts.js",
   "js/dashboard.js",
+  "js/notifications.js",
   "img/camel.svg",
   "manifest.json",
   "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css",

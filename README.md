@@ -81,7 +81,8 @@ window.CT_CONFIG = {
 cameltracker/
   index.html        carte temps réel (MVP)
   history.html      historique des trajets + playback
-  camps.html        gestion des camps (zones + affectation + mode)
+  camps.html        gestion des camps (liste + édition, onglets)
+  notifications.html page Alertes (liste + réglages, onglets)
   dashboard.html    tableau de bord (mini-carte + dispersion + alertes)
   config.js         configuration (URL Traccar, mode démo)
   css/style.css     thème désert, mobile-first
@@ -94,6 +95,7 @@ cameltracker/
     camps.js        modèle des camps (affectation, statut, migration)
     camps-ui.js     page de gestion des camps
     alerts.js       module alertes (zone / groupe / immobilité / batterie)
+    notifications.js page Alertes (liste + réglages)
     dashboard.js    tableau de bord
   img/camel.svg     icône chameau
   manifest.json     PWA

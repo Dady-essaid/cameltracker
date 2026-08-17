@@ -545,10 +545,96 @@ body.gf #map { left: 0; }
 .gf-status.none { background: var(--sable); color: var(--marron-clair); }
 .gf-empty { text-align: center; color: var(--marron-clair); font-size: 14px; padding: 20px; }
 
-/* ---- Page Camps : sélecteur + membres ---- */
-.camp-selrow { display: flex; gap: 8px; align-items: stretch; }
-.camp-selrow select { flex: 1; }
-.camp-selrow .chip { white-space: nowrap; }
+/* ================= Page Alertes (notifications) ================= */
+body.notif { background: var(--sable); }
+.notif-wrap { padding: 60px 12px 24px; max-width: 640px; margin: 0 auto; }
+.notif-wrap .ap-list { padding: 0; }
+.notif-foot { display: flex; gap: 8px; margin-top: 12px; }
+.notif-foot .ap-foot-btn { flex: 1; }
+.settings-card {
+  background: var(--sable-clair);
+  border-radius: 14px;
+  box-shadow: var(--ombre);
+  padding: 12px 14px;
+  margin-bottom: 12px;
+}
+.settings-card h3 { margin: 2px 0 8px; font-size: 14px; color: var(--marron); }
+.set-toggle, .set-num {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 9px 0;
+  font-size: 14px;
+  color: var(--marron);
+  border-top: 1px solid var(--sable-fonce);
+}
+.settings-card h3 + .set-toggle, .settings-card h3 + .set-num { border-top: none; }
+.set-toggle input[type=checkbox] { width: 20px; height: 20px; accent-color: var(--marron); }
+.set-num input {
+  width: 62px;
+  padding: 6px 8px;
+  border: 1px solid var(--sable-fonce);
+  border-radius: 8px;
+  font-size: 14px;
+  text-align: right;
+  background: #fff;
+  color: var(--texte);
+}
+
+/* ================= Page Camps (liste + édition) ================= */
+body.camps { background: var(--sable); }
+
+/* --- Vue liste --- */
+.camps-list { padding: 62px 12px 24px; max-width: 640px; margin: 0 auto; }
+.camp-cards { display: flex; flex-direction: column; gap: 10px; }
+.camps-empty { text-align: center; color: var(--marron-clair); padding: 30px 12px; font-size: 14px; line-height: 1.6; }
+.camp-card {
+  background: var(--sable-clair);
+  border-radius: 14px;
+  box-shadow: var(--ombre);
+  padding: 14px;
+  cursor: pointer;
+}
+.camp-card:active { background: var(--sable); }
+.cc-top { display: flex; align-items: center; gap: 8px; }
+.cc-name { font-weight: 700; color: var(--marron); font-size: 16px; flex: 1; min-width: 0; }
+.cc-sub { font-size: 13px; color: var(--marron-clair); margin-top: 6px; }
+.mode-chip { font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 10px; white-space: nowrap; flex: none; }
+.mode-chip.camp { background: rgba(79, 138, 61, 0.16); color: var(--ok); }
+.mode-chip.move { background: rgba(61, 110, 143, 0.16); color: var(--ciel); }
+
+.wide-btn {
+  width: 100%;
+  margin-top: 14px;
+  padding: 13px;
+  border: none;
+  border-radius: 12px;
+  background: var(--marron);
+  color: var(--sable-clair);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.wide-btn.light { background: var(--sable-clair); color: var(--marron); border: 1px solid var(--sable-fonce); }
+.wide-btn:active { background: var(--marron-clair); }
+
+/* --- Vue édition : carte plein écran + feuille basse --- */
+body.camps #map { position: fixed; top: 52px; left: 0; right: 0; bottom: 0; z-index: 1; }
+.edit-sheet {
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  z-index: 900;
+  background: var(--sable-clair);
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+  box-shadow: 0 -4px 16px rgba(60, 40, 20, 0.2);
+  padding: 12px 14px 16px;
+  max-height: 62vh;
+  overflow-y: auto;
+}
+body.camps.drawing .edit-sheet { display: none; }
+
 #campName {
   width: 100%;
   padding: 10px 12px;
@@ -557,16 +643,55 @@ body.gf #map { left: 0; }
   font-size: 15px;
   background: #fff;
   color: var(--texte);
+  margin-bottom: 10px;
 }
-#campSelect {
-  padding: 9px 10px;
-  border: 1px solid var(--sable-fonce);
-  border-radius: 8px;
+
+/* Onglets */
+.tabs { display: flex; gap: 6px; background: var(--sable); border-radius: 12px; padding: 4px; margin-bottom: 12px; }
+.tabs.sub { background: transparent; padding: 0; gap: 8px; }
+.tabs .tab {
+  flex: 1;
+  border: none;
+  background: transparent;
+  color: var(--marron-clair);
+  padding: 9px;
+  border-radius: 9px;
   font-size: 14px;
-  background: #fff;
-  color: var(--texte);
+  font-weight: 600;
+  cursor: pointer;
 }
-#centerBtn { margin-top: 4px; }
+.tabs .tab.active { background: var(--marron); color: var(--sable-clair); }
+.tabs.sub .tab { background: var(--sable); }
+.tabs.sub .tab.active { background: var(--marron); color: var(--sable-clair); }
+
+#circleCtrls, #polyCtrls, #movePane { margin-bottom: 8px; }
+.center-chip { margin-top: 8px; }
+
+/* Barre de dessin flottante (mode forme libre) */
+.draw-bar {
+  position: fixed;
+  left: 10px; right: 10px; bottom: 14px;
+  z-index: 1200;
+  background: var(--sable-clair);
+  border-radius: 14px;
+  box-shadow: var(--ombre);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+}
+.draw-bar .draw-count { font-size: 13px; font-weight: 700; color: var(--marron); margin-right: auto; }
+.draw-bar .primary { border: none; background: var(--marron); color: var(--sable-clair); border-radius: 9px; padding: 8px 14px; font-weight: 600; cursor: pointer; }
+
+/* Actions d'édition */
+.edit-field { margin: 10px 0; }
+.edit-field label { display: block; font-size: 13px; color: var(--marron-clair); font-weight: 600; margin-bottom: 6px; }
+.edit-actions { display: flex; gap: 8px; margin-top: 14px; align-items: center; }
+.edit-actions .primary { border: none; background: var(--marron); color: var(--sable-clair); border-radius: 10px; padding: 12px; font-weight: 600; font-size: 14px; cursor: pointer; }
+.edit-actions .primary.grow { flex: 1; }
+.ghost-btn { border: 1px solid var(--sable-fonce); background: var(--sable); color: var(--marron); border-radius: 10px; padding: 12px 14px; font-weight: 600; font-size: 14px; cursor: pointer; }
+.ghost-btn.danger { color: var(--danger); }
+
 .members { display: flex; flex-direction: column; gap: 4px; }
 .member {
   display: flex;

@@ -9,50 +9,52 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <link rel="stylesheet" href="css/style.css">
 </head>
-<body class="gf">
+<body class="camps">
 
   <header>
-    <a href="index.html" class="back" title="Retour à la carte">←</a>
-    <h1>Camps</h1>
+    <a href="index.html" class="back" id="headerBack" title="Retour">←</a>
+    <h1 id="pageTitle">Camps</h1>
     <div class="status"><span id="statusText"></span></div>
   </header>
 
-  <div id="map"></div>
+  <!-- ===== VUE LISTE ===== -->
+  <section id="listView" class="camps-list">
+    <div id="campCards" class="camp-cards"></div>
+    <button id="createCampBtn" class="wide-btn">➕ Créer un camp</button>
+  </section>
 
-  <!-- Éditeur de camp -->
-  <div class="gf-editor">
-    <!-- Sélection / création d'un camp -->
-    <div class="gf-field">
-      <label for="campSelect">Camp</label>
-      <div class="camp-selrow">
-        <select id="campSelect"></select>
-        <button id="newCampBtn" class="chip" type="button">➕ Nouveau</button>
-      </div>
+  <!-- ===== VUE ÉDITION ===== -->
+  <section id="editView" hidden>
+    <div id="map"></div>
+
+    <!-- Barre flottante du mode dessin (forme libre) -->
+    <div id="drawBar" class="draw-bar" hidden>
+      <span id="drawCount" class="draw-count">0 point</span>
+      <button id="drawUndo" class="chip" type="button">↩︎ Annuler</button>
+      <button id="drawClear" class="chip" type="button">🗑️ Effacer</button>
+      <button id="drawDone" class="primary" type="button">✓ Terminer</button>
     </div>
 
-    <div class="gf-field">
-      <label for="campName">Nom du camp</label>
-      <input id="campName" type="text" placeholder="ex. Campement Nord" autocomplete="off">
-    </div>
+    <!-- Panneau d'édition (feuille basse, compacte) -->
+    <div class="edit-sheet" id="editSheet">
+      <input id="campName" type="text" placeholder="Nom du camp (ex. Campement Nord)" autocomplete="off">
 
-    <div id="gfStatus" class="gf-status none">—</div>
+      <div id="gfStatus" class="gf-status none">—</div>
 
-    <!-- Mode du camp : au campement (zone fixe) OU en déplacement (cohésion) -->
-    <div class="gf-typeswitch" id="modeSwitch">
-      <button class="seg active" data-mode="camp" type="button">🏕️ Au campement</button>
-      <button class="seg" data-mode="move" type="button">🧭 En déplacement</button>
-    </div>
-
-    <!-- Section CAMPEMENT : géofence (cercle ou forme libre) -->
-    <div id="campSection">
-      <div class="gf-typeswitch">
-        <button class="seg active" data-type="circle" type="button">⭕ Cercle</button>
-        <button class="seg" data-type="polygon" type="button">✏️ Forme libre</button>
+      <!-- Onglets de MODE -->
+      <div class="tabs" id="modeTabs">
+        <button class="tab active" data-mode="camp" type="button">🏕️ Au campement</button>
+        <button class="tab" data-mode="move" type="button">🧭 En déplacement</button>
       </div>
 
-      <div id="circleCtrls">
-        <div class="gf-field">
-          <label>Rayon autorisé autour du campement</label>
+      <!-- Onglet : Au campement -->
+      <div id="campPane">
+        <div class="tabs sub" id="typeTabs">
+          <button class="tab active" data-type="circle" type="button">⭕ Cercle</button>
+          <button class="tab" data-type="polygon" type="button">✏️ Forme libre</button>
+        </div>
+
+        <div id="circleCtrls">
           <div class="gf-radius-row">
             <input id="radius" type="range" min="1" max="150" step="1" value="30">
             <span class="gf-radius-val"><span id="radiusVal">30</span> km</span>
@@ -63,44 +65,37 @@
             <button class="chip" data-km="50" type="button">50 km</button>
             <button class="chip" data-km="100" type="button">100 km</button>
           </div>
+          <button class="chip center-chip" id="centerBtn" type="button">📍 Centrer sur le troupeau</button>
         </div>
-        <p class="hint">🏕️ Glisse le marqueur du campement sur la carte pour déplacer le centre. Le bouton ci-dessous le pose sur le troupeau.</p>
-        <button class="chip" id="centerBtn" type="button">📍 Centrer sur le troupeau</button>
-      </div>
 
-      <div id="polyCtrls" style="display:none">
-        <p class="hint">✏️ Touche la carte pour poser les points de la zone, puis glisse-les pour ajuster.</p>
-        <div class="gf-poly-actions">
-          <button id="undoBtn" class="chip" type="button">↩︎ Dernier point</button>
-          <button id="clearBtn" class="chip" type="button">🗑️ Effacer</button>
-          <span id="polyCount" class="poly-count">0 point</span>
+        <div id="polyCtrls" hidden>
+          <p class="hint">Dessine la zone directement sur la carte, au doigt.</p>
+          <button id="drawStart" class="wide-btn light" type="button">✏️ Dessiner la zone sur la carte</button>
         </div>
       </div>
-    </div>
 
-    <!-- Section DÉPLACEMENT : cohésion -->
-    <div id="moveSection" style="display:none">
-      <p class="hint">🧭 En déplacement, la zone fixe est ignorée. On alerte si un chameau s'éloigne du <b>groupe</b> au-delà du seuil ci-dessous.</p>
-      <div class="gf-field">
-        <label>Distance de cohésion (rester groupés)</label>
+      <!-- Onglet : En déplacement -->
+      <div id="movePane" hidden>
+        <p class="hint">La zone fixe est ignorée. Alerte si un chameau s'éloigne du <b>groupe</b> au-delà du seuil.</p>
         <div class="gf-radius-row">
           <input id="cohesion" type="range" min="1" max="20" step="1" value="3">
           <span class="gf-radius-val"><span id="cohesionVal">3</span> km</span>
         </div>
       </div>
-    </div>
 
-    <!-- Chameaux affectés -->
-    <div class="gf-field">
-      <label>Chameaux de ce camp</label>
-      <div id="members" class="members"></div>
-    </div>
+      <!-- Chameaux affectés -->
+      <div class="edit-field">
+        <label>Chameaux de ce camp</label>
+        <div id="members" class="members"></div>
+      </div>
 
-    <div class="gf-actions">
-      <button class="center-btn" id="deleteBtn" type="button">🗑️ Supprimer</button>
-      <button class="save-btn" id="saveBtn" type="button">Enregistrer</button>
+      <div class="edit-actions">
+        <button class="ghost-btn danger" id="deleteBtn" type="button">🗑️</button>
+        <button class="ghost-btn" id="cancelBtn" type="button">Annuler</button>
+        <button class="primary grow" id="saveBtn" type="button">Enregistrer</button>
+      </div>
     </div>
-  </div>
+  </section>
 
   <div id="toast"></div>
 

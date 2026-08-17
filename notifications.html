@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#6b4a2b">
+  <title>CamelTracker — Alertes</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="notif">
+
+  <header>
+    <a href="index.html" class="back" title="Retour à la carte">←</a>
+    <h1>Alertes</h1>
+    <div class="status">
+      <span id="statusDot" class="dot"></span>
+      <span id="statusText">…</span>
+    </div>
+  </header>
+
+  <main class="notif-wrap">
+    <div class="tabs" id="notifTabs">
+      <button class="tab active" data-tab="alerts" type="button">Alertes</button>
+      <button class="tab" data-tab="settings" type="button">Réglages</button>
+    </div>
+
+    <!-- Onglet Alertes -->
+    <section id="alertsTab">
+      <div id="alertsList" class="ap-list"></div>
+      <div class="notif-foot">
+        <button id="markRead" class="ap-foot-btn" type="button">Tout marquer comme lu</button>
+        <button id="clearResolved" class="ap-foot-btn" type="button">Effacer les résolues</button>
+      </div>
+    </section>
+
+    <!-- Onglet Réglages -->
+    <section id="settingsTab" hidden>
+      <div class="settings-card">
+        <h3>Types d'alerte</h3>
+        <label class="set-toggle"><span>Alertes activées</span><input type="checkbox" id="setEnabled"></label>
+        <label class="set-toggle"><span>📍 Sortie de zone</span><input type="checkbox" id="setZone"></label>
+        <label class="set-toggle"><span>🧭 S'éloigne du groupe</span><input type="checkbox" id="setCohesion"></label>
+        <label class="set-num"><span>🔋 Batterie faible sous</span><span><input type="number" id="setBattery" min="1" max="100" step="1"> %</span></label>
+        <label class="set-num"><span>💤 Immobile depuis</span><span><input type="number" id="setImmobility" min="1" max="72" step="1"> h</span></label>
+      </div>
+
+      <div class="settings-card">
+        <h3>Recevoir sur le téléphone</h3>
+        <p class="hint">Les notifications du navigateur s'affichent quand le site est ouvert (même en arrière-plan sur mobile).</p>
+        <button id="notifBtn" class="wide-btn light" type="button">Activer les notifications système</button>
+        <p class="hint" id="pushNote">ℹ️ Pour être averti <b>même le site fermé</b>, il faut un serveur (ton Traccar, ou un bot Telegram) — on le branchera ensuite.</p>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast"></div>
+
+  <script src="config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/geofence.js"></script>
+  <script src="js/camps.js"></script>
+  <script src="js/alerts.js"></script>
+  <script src="js/notifications.js"></script>
+</body>
+</html>
