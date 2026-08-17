@@ -59,10 +59,11 @@ const API = (() => {
 const DEMO = (() => {
   // Trois chameaux fictifs autour de Nouakchott, avec une dérive aléatoire
   // à chaque appel pour simuler le mouvement.
+  // Chameaux fictifs dans le Hodh El Gharbi (autour d'Aïoun el Atrous).
   const state = [
-    { id: 1, name: "Zarga", lat: 18.12, lon: -15.95, battery: 88, speed: 3.2 },
-    { id: 2, name: "Hamra", lat: 18.02, lon: -16.02, battery: 64, speed: 0.0 },
-    { id: 3, name: "Azrag", lat: 18.20, lon: -15.80, battery: 41, speed: 5.7 },
+    { id: 1, name: "Zarga", lat: 16.66, lon: -9.61, battery: 88, speed: 3.2 },
+    { id: 2, name: "Hamra", lat: 16.45, lon: -9.85, battery: 64, speed: 0.0 },
+    { id: 3, name: "Azrag", lat: 16.30, lon: -9.45, battery: 41, speed: 5.7 },
   ];
 
   function drift() {

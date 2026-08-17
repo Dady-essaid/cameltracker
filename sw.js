@@ -1,15 +1,19 @@
-// sw.js — service worker minimal (app shell + cache des tuiles satellite)
-const SHELL = "ct-shell-v1";
+// sw.js — service worker (tuiles hors ligne + app shell)
+// Stratégie : réseau d'abord pour le code (mises à jour immédiates),
+// cache d'abord pour les tuiles satellite (utile hors ligne / connexion lente).
+const SHELL = "ct-shell-v2";
 const TILES = "ct-tiles-v1";
 
 const SHELL_FILES = [
   "./",
   "index.html",
+  "history.html",
   "css/style.css",
   "config.js",
   "js/api.js",
   "js/map.js",
   "js/app.js",
+  "js/history.js",
   "img/camel.svg",
   "manifest.json",
   "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css",
@@ -56,8 +60,16 @@ self.addEventListener("fetch", (e) => {
   // Ne pas mettre en cache les appels API (positions temps réel).
   if (url.includes("/api/")) return;
 
-  // App shell : cache d'abord, réseau en secours.
-  e.respondWith(
-    caches.match(e.request).then((hit) => hit || fetch(e.request))
-  );
+  // App shell (HTML/JS/CSS) : réseau d'abord, cache en secours (hors ligne).
+  if (e.request.method === "GET") {
+    e.respondWith(
+      fetch(e.request)
+        .then((res) => {
+          const copy = res.clone();
+          caches.open(SHELL).then((c) => c.put(e.request, copy)).catch(() => {});
+          return res;
+        })
+        .catch(() => caches.match(e.request))
+    );
+  }
 });

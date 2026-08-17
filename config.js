@@ -17,7 +17,17 @@ window.CT_CONFIG = {
   // Rafraîchissement de la carte (millisecondes).
   refreshInterval: 30000,
 
-  // Centre par défaut de la carte (Nouakchott, Mauritanie) + zoom.
-  defaultCenter: [18.0735, -15.9582],
-  defaultZoom: 6,
+  // Centre par défaut : Hodh El Gharbi (Aïoun el Atrous) + zoom.
+  defaultCenter: [16.5, -9.7],
+  defaultZoom: 8,
+
+  // Zoom minimum (empêche de trop dézoomer et de perdre la Mauritanie).
+  minZoom: 6,
+
+  // Limites de la carte : la Mauritanie uniquement (SO puis NE).
+  // Impossible de faire glisser la carte hors de ces frontières.
+  bounds: [
+    [14.5, -17.5], // sud-ouest
+    [27.5, -4.5],  // nord-est
+  ],
 };

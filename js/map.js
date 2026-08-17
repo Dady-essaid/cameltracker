@@ -34,9 +34,14 @@ const CTMap = (() => {
 
   // Crée une carte satellite prête à l'emploi dans l'élément donné.
   function create(elId, opts = {}) {
-    const m = L.map(elId, { zoomControl: false }).setView(
-      opts.center || cfg.defaultCenter || [18.07, -15.96],
-      opts.zoom || cfg.defaultZoom || 6
+    const m = L.map(elId, {
+      zoomControl: false,
+      minZoom: cfg.minZoom || 6,
+      maxBounds: cfg.bounds ? L.latLngBounds(cfg.bounds) : undefined,
+      maxBoundsViscosity: 1.0, // "colle" la vue aux frontières de la Mauritanie
+    }).setView(
+      opts.center || cfg.defaultCenter || [16.5, -9.7],
+      opts.zoom || cfg.defaultZoom || 8
     );
     L.control.zoom({ position: "topright" }).addTo(m);
     addBaseLayers(m);
