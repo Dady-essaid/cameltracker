@@ -17,17 +17,13 @@ window.CT_CONFIG = {
   // Rafraîchissement de la carte (millisecondes).
   refreshInterval: 30000,
 
-  // Centre par défaut : Hodh El Gharbi (Aïoun el Atrous) + zoom.
+  // Vue d'ouverture : Hodh El Gharbi (Aïoun el Atrous) + zoom.
+  // La carte s'ouvre ici, mais tu peux te déplacer librement vers les autres
+  // pays (utile si un chameau franchit la frontière — jusqu'à 100 km).
   defaultCenter: [16.5, -9.7],
   defaultZoom: 8,
 
-  // Zoom minimum (empêche de trop dézoomer et de perdre la Mauritanie).
-  minZoom: 6,
-
-  // Limites de la carte : la Mauritanie uniquement (SO puis NE).
-  // Impossible de faire glisser la carte hors de ces frontières.
-  bounds: [
-    [14.5, -17.5], // sud-ouest
-    [27.5, -4.5],  // nord-est
-  ],
+  // Zoom arrière minimum (3 = vue régionale/continentale, aucune limite de
+  // déplacement : on peut suivre un chameau au Mali ou ailleurs).
+  minZoom: 3,
 };
