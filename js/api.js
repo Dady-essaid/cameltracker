@@ -66,6 +66,8 @@ const DEMO = (() => {
     { id: 1, name: "Zarga", lat: 16.66, lon: -9.61, battery: 88, speed: 3.2 },
     { id: 2, name: "Hamra", lat: 16.45, lon: -9.85, battery: 16, speed: 0.0, still: true },
     { id: 3, name: "Azrag", lat: 16.30, lon: -9.45, battery: 41, speed: 5.7 },
+    // Tracker porté par le berger (sert de GPS de référence en déplacement).
+    { id: 4, name: "Berger", lat: 16.55, lon: -9.70, battery: 95, speed: 4.0, guide: true },
   ];
 
   function drift() {

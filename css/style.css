@@ -619,8 +619,78 @@ body.camps { background: var(--sable); }
 .wide-btn.light { background: var(--sable-clair); color: var(--marron); border: 1px solid var(--sable-fonce); }
 .wide-btn:active { background: var(--marron-clair); }
 
-/* --- Vue édition : carte plein écran + feuille basse --- */
-body.camps #map { position: fixed; top: 52px; left: 0; right: 0; bottom: 0; z-index: 1; }
+/* --- Pages carto (Camps / Déplacements) : carte plein écran --- */
+body.camps #map, body.trips #map { position: fixed; top: 52px; left: 0; right: 0; bottom: 0; z-index: 1; }
+
+/* Barre de boutons (camps / déplacements) en haut de la carte */
+.chip-bar {
+  position: fixed;
+  top: 60px; left: 8px; right: 8px;
+  z-index: 800;
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 4px 2px;
+  -webkit-overflow-scrolling: touch;
+}
+.chip-bar .chip {
+  flex: none;
+  border: 1px solid var(--sable-fonce);
+  background: var(--sable-clair);
+  color: var(--marron);
+  border-radius: 18px;
+  padding: 8px 14px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: var(--ombre);
+  white-space: nowrap;
+}
+.chip-bar .chip.add { background: var(--marron); color: var(--sable-clair); border-color: var(--marron); }
+.chip-bar .chip.active { outline: 2px solid var(--marron); }
+.chip-bar .chip.live { border-color: var(--ok); }
+
+/* Barre d'info du camp / déplacement sélectionné */
+.sel-bar {
+  position: fixed;
+  left: 8px; right: 8px; bottom: 12px;
+  z-index: 850;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--sable-clair);
+  border-radius: 14px;
+  box-shadow: var(--ombre);
+  padding: 10px 12px;
+}
+.sel-bar .sel-info { flex: 1; min-width: 0; }
+.sel-bar .sel-name { font-weight: 700; color: var(--marron); font-size: 15px; }
+.sel-bar .sel-sub { font-size: 12px; color: var(--marron-clair); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sel-bar .chip {
+  flex: none;
+  border: 1px solid var(--sable-fonce);
+  background: var(--sable);
+  color: var(--marron);
+  border-radius: 10px;
+  padding: 8px 10px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.sel-bar .chip.start { background: var(--ok); color: #fff; border-color: var(--ok); }
+.sel-bar .chip.start.stop { background: var(--danger); border-color: var(--danger); }
+.sel-bar .chip.danger { color: var(--danger); }
+#guideSel {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--sable-fonce);
+  border-radius: 10px;
+  font-size: 15px;
+  background: #fff;
+  color: var(--texte);
+}
+
+/* --- Feuille d'édition (carte plein écran + feuille basse) --- */
 .edit-sheet {
   position: fixed;
   left: 0; right: 0; bottom: 0;

@@ -85,69 +85,79 @@ const CTMap = (() => {
     m._ctPos = pos;
   }
 
-  // Dessine / met à jour les zones de TOUS les camps.
-  // camps : liste Camps.all() ; statusByDevice : { deviceId: statut } pour
-  // colorer en rouge un camp dont au moins un membre est hors règle.
+  // Dessine / met à jour les zones de TOUS les camps (sédentaires).
+  // statusByDevice : { deviceId: statut } pour colorer en rouge un camp dont
+  // au moins un membre est hors zone.
   function renderCamps(camps, positionsById, statusByDevice) {
     const seen = new Set();
     for (const camp of camps || []) {
-      seen.add(camp.id);
+      seen.add("camp:" + camp.id);
       const anyOut = (camp.members || []).some(
-        (m) => statusByDevice[m] && statusByDevice[m].outside
+        (m) => statusByDevice[m] && statusByDevice[m].outside && statusByDevice[m].campId === camp.id
       );
-      drawCampZone(camp, positionsById, anyOut);
+      drawCampZone(camp, anyOut);
     }
     for (const id of Object.keys(campLayers)) {
-      if (!seen.has(id)) removeCampLayer(id);
+      if (id.startsWith("camp:") && !seen.has(id)) removeCampLayer(id);
     }
+  }
+  function drawCampZone(camp, anyOut) {
+    const key = "camp:" + camp.id;
+    removeCampLayer(key);
+    const color = anyOut ? "#b3492f" : "#4f8a3d";
+    const style = { color, weight: 2, opacity: 0.9, fillColor: color, fillOpacity: 0.07, dashArray: "6 6" };
+    const gf = camp.geofence || {};
+    const layers = [];
+    if (gf.type === "polygon") {
+      if (gf.points && gf.points.length >= 3) layers.push(L.polygon(gf.points, style).addTo(map));
+    } else if (gf.lat != null) {
+      layers.push(L.circle([gf.lat, gf.lon], { radius: (gf.radiusKm || 1) * 1000, ...style }).addTo(map));
+    }
+    if (layers.length) campLayers[key] = layers;
+  }
+
+  // Dessine les DÉPLACEMENTS actifs : marqueur du berger + cercle de seuil autour.
+  function renderTrips(trips, positionsById, statusByDevice) {
+    const seen = new Set();
+    for (const trip of trips || []) {
+      const key = "trip:" + trip.id;
+      seen.add(key);
+      removeCampLayer(key);
+      const guide = positionsById[trip.guideId];
+      if (!guide) continue;
+      const anyOut = (trip.members || []).some(
+        (m) => statusByDevice[m] && statusByDevice[m].outside && statusByDevice[m].tripId === trip.id
+      );
+      const color = anyOut ? "#b3492f" : "#3d6e8f";
+      const layers = [];
+      layers.push(
+        L.circle([guide.latitude, guide.longitude], {
+          radius: (trip.thresholdKm || 3) * 1000,
+          color, weight: 2, opacity: 0.9, fillColor: color, fillOpacity: 0.07, dashArray: "6 6",
+        }).addTo(map)
+      );
+      layers.push(
+        L.marker([guide.latitude, guide.longitude], { icon: guideIcon(), zIndexOffset: 900 })
+          .addTo(map)
+          .bindTooltip("Berger", { direction: "top", offset: [0, -18], className: "camel-label" })
+      );
+      campLayers[key] = layers;
+    }
+    for (const id of Object.keys(campLayers)) {
+      if (id.startsWith("trip:") && !seen.has(id)) removeCampLayer(id);
+    }
+  }
+  function guideIcon() {
+    return L.divIcon({
+      className: "",
+      html: `<div style="width:30px;height:30px;display:flex;align-items:center;justify-content:center;background:#3d6e8f;border:2px solid #fff;border-radius:50%;box-shadow:var(--ombre);font-size:15px">🧑🏽</div>`,
+      iconSize: [30, 30],
+      iconAnchor: [15, 15],
+    });
   }
   function removeCampLayer(id) {
     (campLayers[id] || []).forEach((l) => map.removeLayer(l));
     delete campLayers[id];
-  }
-  function campCentroid(camp, positionsById) {
-    const pts = (camp.members || []).map((m) => positionsById[m]).filter(Boolean);
-    if (!pts.length) return null;
-    let lat = 0;
-    let lon = 0;
-    for (const p of pts) {
-      lat += p.latitude;
-      lon += p.longitude;
-    }
-    return { lat: lat / pts.length, lon: lon / pts.length, count: pts.length };
-  }
-  function drawCampZone(camp, positionsById, anyOut) {
-    removeCampLayer(camp.id);
-    const move = camp.mode === "move";
-    const color = anyOut ? "#b3492f" : move ? "#3d6e8f" : "#4f8a3d";
-    const style = {
-      color,
-      weight: 2,
-      opacity: 0.9,
-      fillColor: color,
-      fillOpacity: 0.07,
-      dashArray: "6 6",
-    };
-    const layers = [];
-    if (move) {
-      // Cercle de cohésion autour du barycentre du groupe.
-      const c = campCentroid(camp, positionsById);
-      if (c && c.count >= 2) {
-        layers.push(
-          L.circle([c.lat, c.lon], { radius: (camp.cohesionKm || 3) * 1000, ...style }).addTo(map)
-        );
-      }
-    } else {
-      const gf = camp.geofence || {};
-      if (gf.type === "polygon") {
-        if (gf.points && gf.points.length >= 3) layers.push(L.polygon(gf.points, style).addTo(map));
-      } else if (gf.lat != null) {
-        layers.push(
-          L.circle([gf.lat, gf.lon], { radius: (gf.radiusKm || 1) * 1000, ...style }).addTo(map)
-        );
-      }
-    }
-    if (layers.length) campLayers[camp.id] = layers;
   }
 
   function popupHtml(device, pos, st) {
@@ -156,12 +166,12 @@ const CTMap = (() => {
     const low = bat != null && bat < 25;
     let zoneRow = "";
     if (st && st.state !== "none") {
-      if (st.type === "cohesion") {
+      if (st.type === "trip") {
         const detail =
           st.distanceKm != null ? ` · ${st.distanceKm.toFixed(1)}/${st.thresholdKm} km` : "";
         zoneRow = st.outside
-          ? `<div class="row"><b>Groupe</b><span class="bat low">S'ÉLOIGNE${detail}</span></div>`
-          : `<div class="row"><b>Groupe</b><span style="color:#4f8a3d;font-weight:700">Avec le groupe${detail}</span></div>`;
+          ? `<div class="row"><b>Berger</b><span class="bat low">S'ÉLOIGNE${detail}</span></div>`
+          : `<div class="row"><b>Berger</b><span style="color:#4f8a3d;font-weight:700">Avec le berger${detail}</span></div>`;
       } else {
         const detail =
           st.distanceKm != null ? ` · ${st.distanceKm.toFixed(1)}/${st.radiusKm} km` : "";
@@ -220,5 +230,5 @@ const CTMap = (() => {
     return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   }
 
-  return { init, create, addBaseLayers, upsert, renderCamps, focus, fitAll, isStale, timeAgo, escapeHtml };
+  return { init, create, addBaseLayers, upsert, renderCamps, renderTrips, focus, fitAll, isStale, timeAgo, escapeHtml };
 })();

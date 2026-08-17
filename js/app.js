@@ -68,7 +68,7 @@
       for (const d of devices) {
         const pos = positionsById[d.id];
         if (pos) {
-          const st = Camps.statusFor(d.id, positionsById);
+          const st = Rules.statusFor(d.id, positionsById);
           statusById[d.id] = st;
           CTMap.upsert(d, pos, { status: st });
           if (!CTMap.isStale(pos.deviceTime)) online++;
@@ -76,6 +76,7 @@
         }
       }
       CTMap.renderCamps(Camps.all(), positionsById, statusById);
+      CTMap.renderTrips(Trips.active(), positionsById, statusById);
       renderList();
 
       // Alertes : sortie de zone, immobilité, batterie faible.
@@ -112,12 +113,12 @@
       const low = bat != null && bat < 25;
       const kmh = pos?.speed != null ? (pos.speed * 1.852).toFixed(1) : "—";
       const st = statusById[d.id];
-      const coh = st && st.type === "cohesion";
+      const trip = st && st.type === "trip";
       const zone =
         st && st.state === "outside"
-          ? `<span class="zone-badge out">${coh ? "ÉLOIGNÉ" : "HORS ZONE"}</span>`
+          ? `<span class="zone-badge out">${trip ? "ÉLOIGNÉ" : "HORS ZONE"}</span>`
           : st && st.state === "inside"
-          ? `<span class="zone-badge in">${coh ? "groupé" : "zone OK"}</span>`
+          ? `<span class="zone-badge in">${trip ? "avec berger" : "zone OK"}</span>`
           : "";
       const item = document.createElement("div");
       item.className = "camel-item";

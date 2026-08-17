@@ -48,12 +48,15 @@
       for (const d of devices) {
         const pos = positionsById[d.id];
         if (pos) {
-          const st = Camps.statusFor(d.id, positionsById);
+          const st = Rules.statusFor(d.id, positionsById);
           statusById[d.id] = st;
           if (mapReady) CTMap.upsert(d, pos, { status: st, onClick: goToCamel });
         }
       }
-      if (mapReady) CTMap.renderCamps(Camps.all(), positionsById, statusById);
+      if (mapReady) {
+        CTMap.renderCamps(Camps.all(), positionsById, statusById);
+        CTMap.renderTrips(Trips.active(), positionsById, statusById);
+      }
       if (mapReady && !fitted) {
         CTMap.fitAll();
         fitted = true;
@@ -76,8 +79,8 @@
   function distInfo(deviceId) {
     const st = statusById[deviceId];
     if (!st || st.distanceKm == null) return null;
-    if (st.type === "cohesion")
-      return { km: st.distanceKm, out: st.outside, label: "du groupe" };
+    if (st.type === "trip")
+      return { km: st.distanceKm, out: st.outside, label: "du berger" };
     if (st.type === "circle")
       return { km: st.distanceKm, out: st.outside, label: "du campement", radius: st.radiusKm };
     return null; // polygone (pas de distance simple) ou aucune règle
@@ -190,7 +193,7 @@
         const badges = alertsByDevice[d.id] || [];
         const di = distInfo(d.id);
         const campObj = Camps.campOfDevice(d.id);
-        const coh = st && st.type === "cohesion";
+        const coh = st && st.type === "trip";
 
         const zoneBadge =
           st && st.state === "outside"

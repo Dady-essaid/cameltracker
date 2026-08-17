@@ -40,7 +40,7 @@
         <h3>Types d'alerte</h3>
         <label class="set-toggle"><span>Alertes activées</span><input type="checkbox" id="setEnabled"></label>
         <label class="set-toggle"><span>📍 Sortie de zone</span><input type="checkbox" id="setZone"></label>
-        <label class="set-toggle"><span>🧭 S'éloigne du groupe</span><input type="checkbox" id="setCohesion"></label>
+        <label class="set-toggle"><span>🧭 S'éloigne du berger (déplacement)</span><input type="checkbox" id="setCohesion"></label>
         <label class="set-num"><span>🔋 Batterie faible sous</span><span><input type="number" id="setBattery" min="1" max="100" step="1"> %</span></label>
         <label class="set-num"><span>💤 Immobile depuis</span><span><input type="number" id="setImmobility" min="1" max="72" step="1"> h</span></label>
       </div>
@@ -60,6 +60,8 @@
   <script src="js/api.js"></script>
   <script src="js/geofence.js"></script>
   <script src="js/camps.js"></script>
+  <script src="js/trips.js"></script>
+  <script src="js/rules.js"></script>
   <script src="js/alerts.js"></script>
   <script src="js/notifications.js"></script>
 </body>

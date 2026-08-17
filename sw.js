@@ -1,7 +1,7 @@
 // sw.js — service worker (tuiles hors ligne + app shell)
 // Stratégie : réseau d'abord pour le code (mises à jour immédiates),
 // cache d'abord pour les tuiles satellite (utile hors ligne / connexion lente).
-const SHELL = "ct-shell-v5";
+const SHELL = "ct-shell-v6";
 const TILES = "ct-tiles-v1";
 
 const SHELL_FILES = [
@@ -10,6 +10,7 @@ const SHELL_FILES = [
   "history.html",
   "dashboard.html",
   "camps.html",
+  "trips.html",
   "notifications.html",
   "css/style.css",
   "config.js",
@@ -20,6 +21,9 @@ const SHELL_FILES = [
   "js/geofence.js",
   "js/camps.js",
   "js/camps-ui.js",
+  "js/trips.js",
+  "js/trips-ui.js",
+  "js/rules.js",
   "js/alerts.js",
   "js/dashboard.js",
   "js/notifications.js",

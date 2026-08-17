@@ -157,11 +157,11 @@ const Alerts = (() => {
       //    éloignement du groupe (mode déplacement) — jamais les deux à la fois,
       //    car le statut d'un chameau ne porte qu'un seul type.
       const st = statusById[d.id];
-      if (st && st.type === "cohesion") {
+      if (st && st.type === "trip") {
         if (cfg.cohesion && st.outside) {
           const detail =
-            st.distanceKm != null ? ` (à ${st.distanceKm.toFixed(1)} km du groupe)` : "";
-          if (raise(s, "cohesion", d.id, name, `S'éloigne du groupe${detail}`))
+            st.distanceKm != null ? ` (à ${st.distanceKm.toFixed(1)} km du berger)` : "";
+          if (raise(s, "cohesion", d.id, name, `S'éloigne du berger${detail}`))
             newly.push("cohesion:" + d.id);
         } else {
           resolve(s, "cohesion", d.id);

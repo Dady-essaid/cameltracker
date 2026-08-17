@@ -17,22 +17,24 @@ carte satellite, à partir d'un serveur **Traccar**.
 - ✅ PWA : installable sur l'écran d'accueil, cache des tuiles hors ligne
 - ✅ **Historique des trajets** : sélection chameau + dates, tracé coloré par
   vitesse, points d'arrêt (durée), lecture animée (playback x4–x32)
-- ✅ **Camps (bases) + géofencing** : on crée des camps, chacun avec sa
-  **géofence** (cercle avec rayon/campement déplaçable, ou **forme libre**
-  polygone) et sa **liste de chameaux affectés**. Chaque camp a un **mode** :
-  - `Au campement` : les chameaux doivent rester dans la zone du camp ;
-  - `En déplacement` : la zone fixe est ignorée, on alerte si un chameau
-    **s'éloigne du groupe** au-delà d'un seuil de cohésion (km) réglable —
-    pratique pour un trajet d'un point à un autre.
+- ✅ **Camps (bases sédentaires)** : page carto (carte + boutons de camps + ➕).
+  Chaque camp a sa **géofence** (cercle rayon/campement déplaçable, ou **forme
+  libre** polygone dessinée en plein écran) et ses **chameaux affectés**. On
+  alerte si un chameau sort de la zone de son camp.
+- ✅ **Déplacements (transhumance)** : page séparée. On désigne le **GPS du
+  berger** (le tracker qu'il porte), on affecte les chameaux et un seuil (km),
+  avec un cycle **Démarrer / Terminer**. Tant qu'il est actif, on alerte si un
+  chameau **s'éloigne du berger** au-delà du seuil.
 
-  Règle unique : **un chameau appartient à un seul camp**, donc une seule règle
-  s'applique (sortie de zone *ou* cohésion, jamais les deux).
-- ✅ **Alertes / notifications** : cloche + panneau sur le site, avec quatre
-  types d'alerte par chameau — **sortie de zone**, **éloignement du groupe**
-  (mode déplacement), **immobilité prolongée** (seuil en heures) et **batterie
-  faible** du tracker (seuil %). Seuils/toggles réglables, badge de non-lus,
-  toast en direct, historique des alertes résolues, et notifications système du
-  navigateur (facultatives).
+  Règle unique par chameau : un **déplacement actif prime** sur le camp — donc
+  jamais deux règles à la fois (sortie de zone *ou* éloignement du berger).
+- ✅ **Alertes / notifications** : page dédiée (onglets Alertes / Réglages) +
+  cloche avec badge sur la carte. Quatre types par chameau — **sortie de zone**,
+  **éloignement du berger** (déplacement), **immobilité prolongée** (seuil h) et
+  **batterie faible** (seuil %). Seuils/toggles réglables, toast en direct,
+  historique des alertes résolues, notifications système du navigateur
+  (facultatives). *Push téléphone hors-site : nécessite un serveur (Traccar ou
+  bot) — à venir.*
 - ✅ **Tableau de bord** : synthèse du troupeau — mini-carte (tous les
   chameaux + zones d'un coup d'œil), **dispersion** (étendue du troupeau) et
   **chameau le plus éloigné de son campement**, alertes actives, et état par
@@ -81,7 +83,8 @@ window.CT_CONFIG = {
 cameltracker/
   index.html        carte temps réel (MVP)
   history.html      historique des trajets + playback
-  camps.html        gestion des camps (liste + édition, onglets)
+  camps.html        camps sédentaires (carte + boutons + géofence)
+  trips.html        déplacements (GPS berger + démarrer/terminer)
   notifications.html page Alertes (liste + réglages, onglets)
   dashboard.html    tableau de bord (mini-carte + dispersion + alertes)
   config.js         configuration (URL Traccar, mode démo)
@@ -92,9 +95,12 @@ cameltracker/
     app.js          logique : login, refresh, liste
     history.js      trajet, arrêts, lecture animée
     geofence.js     géométrie des zones (distance, in/out, status)
-    camps.js        modèle des camps (affectation, statut, migration)
-    camps-ui.js     page de gestion des camps
-    alerts.js       module alertes (zone / groupe / immobilité / batterie)
+    camps.js        modèle des camps (sédentaires)
+    camps-ui.js     page des camps (carto)
+    trips.js        modèle des déplacements (berger, démarrer/terminer)
+    trips-ui.js     page des déplacements
+    rules.js        règle unique par chameau (déplacement actif > camp)
+    alerts.js       module alertes (zone / berger / immobilité / batterie)
     notifications.js page Alertes (liste + réglages)
     dashboard.js    tableau de bord
   img/camel.svg     icône chameau

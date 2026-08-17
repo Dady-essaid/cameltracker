@@ -12,90 +12,75 @@
 <body class="camps">
 
   <header>
-    <a href="index.html" class="back" id="headerBack" title="Retour">←</a>
+    <a href="index.html" class="back" title="Retour à la carte">←</a>
     <h1 id="pageTitle">Camps</h1>
     <div class="status"><span id="statusText"></span></div>
   </header>
 
-  <!-- ===== VUE LISTE ===== -->
-  <section id="listView" class="camps-list">
-    <div id="campCards" class="camp-cards"></div>
-    <button id="createCampBtn" class="wide-btn">➕ Créer un camp</button>
-  </section>
+  <div id="map"></div>
 
-  <!-- ===== VUE ÉDITION ===== -->
-  <section id="editView" hidden>
-    <div id="map"></div>
+  <!-- Barre des camps (boutons) + ajout -->
+  <div class="chip-bar" id="campBar">
+    <button class="chip add" id="addCampBtn" type="button">➕ Camp</button>
+  </div>
 
-    <!-- Barre flottante du mode dessin (forme libre) -->
-    <div id="drawBar" class="draw-bar" hidden>
-      <span id="drawCount" class="draw-count">0 point</span>
-      <button id="drawUndo" class="chip" type="button">↩︎ Annuler</button>
-      <button id="drawClear" class="chip" type="button">🗑️ Effacer</button>
-      <button id="drawDone" class="primary" type="button">✓ Terminer</button>
+  <!-- Info du camp sélectionné -->
+  <div class="sel-bar" id="selBar" hidden>
+    <div class="sel-info">
+      <div class="sel-name" id="selName"></div>
+      <div class="sel-sub" id="selSub"></div>
+    </div>
+    <button class="chip" id="editSelBtn" type="button">✏️</button>
+    <button class="chip danger" id="delSelBtn" type="button">🗑️</button>
+  </div>
+
+  <!-- Feuille d'ajout / édition -->
+  <div class="edit-sheet" id="editSheet" hidden>
+    <input id="campName" type="text" placeholder="Nom du camp (ex. Campement Nord)" autocomplete="off">
+    <div id="gfStatus" class="gf-status none">—</div>
+
+    <div class="tabs sub" id="typeTabs">
+      <button class="tab active" data-type="circle" type="button">⭕ Cercle</button>
+      <button class="tab" data-type="polygon" type="button">✏️ Forme libre</button>
     </div>
 
-    <!-- Panneau d'édition (feuille basse, compacte) -->
-    <div class="edit-sheet" id="editSheet">
-      <input id="campName" type="text" placeholder="Nom du camp (ex. Campement Nord)" autocomplete="off">
-
-      <div id="gfStatus" class="gf-status none">—</div>
-
-      <!-- Onglets de MODE -->
-      <div class="tabs" id="modeTabs">
-        <button class="tab active" data-mode="camp" type="button">🏕️ Au campement</button>
-        <button class="tab" data-mode="move" type="button">🧭 En déplacement</button>
+    <div id="circleCtrls">
+      <div class="gf-radius-row">
+        <input id="radius" type="range" min="1" max="150" step="1" value="30">
+        <span class="gf-radius-val"><span id="radiusVal">30</span> km</span>
       </div>
-
-      <!-- Onglet : Au campement -->
-      <div id="campPane">
-        <div class="tabs sub" id="typeTabs">
-          <button class="tab active" data-type="circle" type="button">⭕ Cercle</button>
-          <button class="tab" data-type="polygon" type="button">✏️ Forme libre</button>
-        </div>
-
-        <div id="circleCtrls">
-          <div class="gf-radius-row">
-            <input id="radius" type="range" min="1" max="150" step="1" value="30">
-            <span class="gf-radius-val"><span id="radiusVal">30</span> km</span>
-          </div>
-          <div class="gf-presets">
-            <button class="chip" data-km="15" type="button">15 km</button>
-            <button class="chip" data-km="30" type="button">30 km</button>
-            <button class="chip" data-km="50" type="button">50 km</button>
-            <button class="chip" data-km="100" type="button">100 km</button>
-          </div>
-          <button class="chip center-chip" id="centerBtn" type="button">📍 Centrer sur le troupeau</button>
-        </div>
-
-        <div id="polyCtrls" hidden>
-          <p class="hint">Dessine la zone directement sur la carte, au doigt.</p>
-          <button id="drawStart" class="wide-btn light" type="button">✏️ Dessiner la zone sur la carte</button>
-        </div>
+      <div class="gf-presets">
+        <button class="chip" data-km="15" type="button">15 km</button>
+        <button class="chip" data-km="30" type="button">30 km</button>
+        <button class="chip" data-km="50" type="button">50 km</button>
+        <button class="chip" data-km="100" type="button">100 km</button>
       </div>
-
-      <!-- Onglet : En déplacement -->
-      <div id="movePane" hidden>
-        <p class="hint">La zone fixe est ignorée. Alerte si un chameau s'éloigne du <b>groupe</b> au-delà du seuil.</p>
-        <div class="gf-radius-row">
-          <input id="cohesion" type="range" min="1" max="20" step="1" value="3">
-          <span class="gf-radius-val"><span id="cohesionVal">3</span> km</span>
-        </div>
-      </div>
-
-      <!-- Chameaux affectés -->
-      <div class="edit-field">
-        <label>Chameaux de ce camp</label>
-        <div id="members" class="members"></div>
-      </div>
-
-      <div class="edit-actions">
-        <button class="ghost-btn danger" id="deleteBtn" type="button">🗑️</button>
-        <button class="ghost-btn" id="cancelBtn" type="button">Annuler</button>
-        <button class="primary grow" id="saveBtn" type="button">Enregistrer</button>
-      </div>
+      <button class="chip center-chip" id="centerBtn" type="button">📍 Centrer sur le troupeau</button>
     </div>
-  </section>
+
+    <div id="polyCtrls" hidden>
+      <p class="hint">Dessine la zone directement sur la carte, au doigt.</p>
+      <button id="drawStart" class="wide-btn light" type="button">✏️ Dessiner la zone sur la carte</button>
+    </div>
+
+    <div class="edit-field">
+      <label>Chameaux de ce camp</label>
+      <div id="members" class="members"></div>
+    </div>
+
+    <div class="edit-actions">
+      <button class="ghost-btn" id="cancelBtn" type="button">Annuler</button>
+      <button class="primary grow" id="saveBtn" type="button">Enregistrer</button>
+    </div>
+  </div>
+
+  <!-- Barre du mode dessin -->
+  <div id="drawBar" class="draw-bar" hidden>
+    <span id="drawCount" class="draw-count">0 point</span>
+    <button id="drawUndo" class="chip" type="button">↩︎</button>
+    <button id="drawClear" class="chip" type="button">🗑️</button>
+    <button id="drawDone" class="primary" type="button">✓ Terminer</button>
+  </div>
 
   <div id="toast"></div>
 

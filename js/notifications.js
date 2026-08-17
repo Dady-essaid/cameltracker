@@ -36,7 +36,7 @@
       const positionsById = {};
       for (const p of positions) positionsById[p.deviceId] = p;
       const statusById = {};
-      for (const d of devices) if (positionsById[d.id]) statusById[d.id] = Camps.statusFor(d.id, positionsById);
+      for (const d of devices) if (positionsById[d.id]) statusById[d.id] = Rules.statusFor(d.id, positionsById);
       Alerts.evaluate(devices, positionsById, statusById);
       setStatus(true, "à jour");
     } catch (e) {
