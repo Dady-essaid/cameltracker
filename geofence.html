@@ -28,21 +28,39 @@
 
     <div id="gfStatus" class="gf-status none">—</div>
 
-    <div class="gf-field">
-      <label>Rayon autorisé autour du campement</label>
-      <div class="gf-radius-row">
-        <input id="radius" type="range" min="1" max="150" step="1" value="30">
-        <span class="gf-radius-val"><span id="radiusVal">30</span> km</span>
-      </div>
-      <div class="gf-presets">
-        <button class="chip" data-km="15">15 km</button>
-        <button class="chip" data-km="30">30 km</button>
-        <button class="chip" data-km="50">50 km</button>
-        <button class="chip" data-km="100">100 km</button>
-      </div>
+    <!-- Choix du type de zone -->
+    <div class="gf-typeswitch">
+      <button class="seg active" data-type="circle">⭕ Cercle</button>
+      <button class="seg" data-type="polygon">✏️ Forme libre</button>
     </div>
 
-    <p class="hint">🏕️ Glisse le marqueur du campement sur la carte pour déplacer le centre de la zone.</p>
+    <!-- Contrôles : cercle -->
+    <div id="circleCtrls">
+      <div class="gf-field">
+        <label>Rayon autorisé autour du campement</label>
+        <div class="gf-radius-row">
+          <input id="radius" type="range" min="1" max="150" step="1" value="30">
+          <span class="gf-radius-val"><span id="radiusVal">30</span> km</span>
+        </div>
+        <div class="gf-presets">
+          <button class="chip" data-km="15">15 km</button>
+          <button class="chip" data-km="30">30 km</button>
+          <button class="chip" data-km="50">50 km</button>
+          <button class="chip" data-km="100">100 km</button>
+        </div>
+      </div>
+      <p class="hint">🏕️ Glisse le marqueur du campement sur la carte pour déplacer le centre de la zone.</p>
+    </div>
+
+    <!-- Contrôles : forme libre (polygone) -->
+    <div id="polyCtrls" style="display:none">
+      <p class="hint">✏️ Touche la carte pour poser les points de la zone, puis glisse-les pour ajuster. Idéal pour des distances différentes selon la direction (ex. 15 km à l'est, 30 km à l'ouest).</p>
+      <div class="gf-poly-actions">
+        <button id="undoBtn" class="chip">↩︎ Dernier point</button>
+        <button id="clearBtn" class="chip">🗑️ Effacer</button>
+        <span id="polyCount" class="poly-count">0 point</span>
+      </div>
+    </div>
 
     <div class="gf-toggle">
       <span class="lab">Alertes de sortie activées</span>

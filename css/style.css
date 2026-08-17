@@ -427,6 +427,43 @@ body.gf #map { left: 0; }
   display: flex; align-items: center; gap: 8px;
 }
 .gf-editor .hint { font-size: 12px; color: var(--marron-clair); margin: -6px 0 14px; }
+/* Sélecteur de type de zone (cercle / forme libre) */
+.gf-typeswitch {
+  display: flex;
+  gap: 6px;
+  background: var(--sable);
+  border-radius: 12px;
+  padding: 4px;
+  margin-bottom: 14px;
+}
+.gf-typeswitch .seg {
+  flex: 1;
+  border: none;
+  background: transparent;
+  color: var(--marron-clair);
+  padding: 9px;
+  border-radius: 9px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.gf-typeswitch .seg.active {
+  background: var(--marron);
+  color: var(--sable-clair);
+}
+.gf-poly-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+.gf-poly-actions .poly-count {
+  margin-left: auto;
+  font-size: 13px;
+  color: var(--marron-clair);
+  font-weight: 600;
+}
+
 .gf-field { margin-bottom: 14px; }
 .gf-field label {
   display: block;

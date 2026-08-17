@@ -81,22 +81,32 @@ const CTMap = (() => {
     m._ctPos = pos;
   }
 
-  // Dessine / met à jour le cercle de zone d'un chameau.
+  // Dessine / met à jour la zone d'un chameau (cercle OU polygone).
   function setGeofence(deviceId, gf, outside) {
     if (fences[deviceId]) {
       map.removeLayer(fences[deviceId]);
       delete fences[deviceId];
     }
-    if (!gf || !gf.enabled || gf.lat == null) return;
-    fences[deviceId] = L.circle([gf.lat, gf.lon], {
-      radius: gf.radiusKm * 1000,
-      color: outside ? "#b3492f" : "#4f8a3d",
+    if (!gf || !gf.enabled) return;
+    const color = outside ? "#b3492f" : "#4f8a3d";
+    const style = {
+      color,
       weight: 2,
       opacity: 0.9,
-      fillColor: outside ? "#b3492f" : "#4f8a3d",
+      fillColor: color,
       fillOpacity: 0.07,
       dashArray: "6 6",
-    }).addTo(map);
+    };
+    if (gf.type === "polygon") {
+      if (!gf.points || gf.points.length < 3) return;
+      fences[deviceId] = L.polygon(gf.points, style).addTo(map);
+    } else {
+      if (gf.lat == null) return;
+      fences[deviceId] = L.circle([gf.lat, gf.lon], {
+        radius: gf.radiusKm * 1000,
+        ...style,
+      }).addTo(map);
+    }
   }
 
   function popupHtml(device, pos, st) {
@@ -105,13 +115,11 @@ const CTMap = (() => {
     const low = bat != null && bat < 25;
     let zoneRow = "";
     if (st && st.state !== "none") {
+      const detail =
+        st.distanceKm != null ? ` · ${st.distanceKm.toFixed(1)}/${st.radiusKm} km` : "";
       zoneRow = st.outside
-        ? `<div class="row"><b>Zone</b><span class="bat low">HORS ZONE · ${st.distanceKm.toFixed(
-            1
-          )}/${st.radiusKm} km</span></div>`
-        : `<div class="row"><b>Zone</b><span style="color:#4f8a3d;font-weight:700">Dans la zone · ${st.distanceKm.toFixed(
-            1
-          )}/${st.radiusKm} km</span></div>`;
+        ? `<div class="row"><b>Zone</b><span class="bat low">HORS ZONE${detail}</span></div>`
+        : `<div class="row"><b>Zone</b><span style="color:#4f8a3d;font-weight:700">Dans la zone${detail}</span></div>`;
     }
     return `<div class="ct-popup">
       <h3>${escapeHtml(device.name)}</h3>
