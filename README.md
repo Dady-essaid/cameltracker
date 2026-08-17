@@ -21,8 +21,13 @@ carte satellite, à partir d'un serveur **Traccar**.
   **cercle** (rayon + campement déplaçable) ou **forme libre** (polygone
   dessiné au doigt, sommets ajustables — ex. 15 km à l'est, 30 km à l'ouest) ;
   réglable à tout moment ; statut « dans la zone / HORS ZONE » sur la carte
+- ✅ **Alertes / notifications** : cloche + panneau sur le site, avec trois
+  types d'alerte par chameau — **sortie de zone**, **immobilité prolongée**
+  (seuil en heures) et **batterie faible** du tracker (seuil %). Seuils
+  réglables, badge de non-lus, toast en direct, historique des alertes
+  résolues, et notifications système du navigateur (facultatives).
 
-À venir : alertes/notifications, tableau de bord.
+À venir : tableau de bord.
 
 ## Démarrer en local
 
@@ -76,6 +81,7 @@ cameltracker/
     history.js      trajet, arrêts, lecture animée
     geofence.js     module zones (stockage, distance, in/out)
     geofence-ui.js  page de gestion des zones
+    alerts.js       module alertes (zone / immobilité / batterie)
   img/camel.svg     icône chameau
   manifest.json     PWA
   sw.js             service worker (cache tuiles + app shell)

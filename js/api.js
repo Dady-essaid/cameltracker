@@ -60,14 +60,17 @@ const DEMO = (() => {
   // Trois chameaux fictifs autour de Nouakchott, avec une dérive aléatoire
   // à chaque appel pour simuler le mouvement.
   // Chameaux fictifs dans le Hodh El Gharbi (autour d'Aïoun el Atrous).
+  // Hamra est volontairement à l'arrêt et en batterie faible pour illustrer
+  // les alertes (immobilité + batterie) dès le mode démo, sans serveur.
   const state = [
     { id: 1, name: "Zarga", lat: 16.66, lon: -9.61, battery: 88, speed: 3.2 },
-    { id: 2, name: "Hamra", lat: 16.45, lon: -9.85, battery: 64, speed: 0.0 },
+    { id: 2, name: "Hamra", lat: 16.45, lon: -9.85, battery: 16, speed: 0.0, still: true },
     { id: 3, name: "Azrag", lat: 16.30, lon: -9.45, battery: 41, speed: 5.7 },
   ];
 
   function drift() {
     for (const c of state) {
+      if (c.still) continue; // reste immobile (démo alerte immobilité)
       c.lat += (Math.sin(c.id * 9973 + c.lat * 100) % 1) * 0.004;
       c.lon += (Math.cos(c.id * 7919 + c.lon * 100) % 1) * 0.004;
       c.speed = Math.max(0, c.speed + ((c.id % 2 ? 1 : -1) * 0.5));
@@ -86,16 +89,22 @@ const DEMO = (() => {
 
   function positions() {
     drift();
-    return state.map((c) => ({
-      id: 1000 + c.id,
-      deviceId: c.id,
-      latitude: c.lat,
-      longitude: c.lon,
-      speed: c.speed, // en nœuds côté Traccar
-      course: 0,
-      deviceTime: new Date().toISOString(),
-      attributes: { batteryLevel: c.battery, distance: 0, motion: c.speed > 0 },
-    }));
+    return state.map((c) => {
+      const attributes = { batteryLevel: c.battery, distance: 0, motion: c.speed > 0 };
+      // Pour un chameau à l'arrêt, on renseigne l'heure du dernier mouvement
+      // (ici ~7 h) afin de déclencher l'alerte d'immobilité tout de suite.
+      if (c.still) attributes.lastMotionAt = new Date(Date.now() - 7 * 3600 * 1000).toISOString();
+      return {
+        id: 1000 + c.id,
+        deviceId: c.id,
+        latitude: c.lat,
+        longitude: c.lon,
+        speed: c.speed, // en nœuds côté Traccar
+        course: 0,
+        deviceTime: new Date().toISOString(),
+        attributes,
+      };
+    });
   }
 
   function route(deviceId, from, to) {
