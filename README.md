@@ -17,9 +17,9 @@ carte satellite, à partir d'un serveur **Traccar**.
 - ✅ PWA : installable sur l'écran d'accueil, cache des tuiles hors ligne
 - ✅ **Historique des trajets** : sélection chameau + dates, tracé coloré par
   vitesse, points d'arrêt (durée), lecture animée (playback x4–x32)
-- ✅ **Géofencing par chameau** : rayon autorisé propre à chaque chameau
-  (ex. adulte 100 km, petits/été 15 km), campement déplaçable, réglable à tout
-  moment ; statut « dans la zone / HORS ZONE » sur la carte temps réel
+- ✅ **Géofencing par chameau** : rayon autorisé propre à chaque chameau,
+  campement déplaçable, réglable à tout moment ; statut
+  « dans la zone / HORS ZONE » sur la carte temps réel
 
 À venir : alertes/notifications, tableau de bord.
 
