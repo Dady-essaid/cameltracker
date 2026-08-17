@@ -12,18 +12,18 @@
 <body class="trips">
 
   <header>
-    <a href="index.html" class="back" title="Retour à la carte">←</a>
+    <a href="index.html" class="back" id="headerBack" title="Retour">←</a>
     <h1 id="pageTitle">Déplacements</h1>
     <div class="status"><span id="statusText"></span></div>
   </header>
 
+  <!-- ===== VUE CARTE ===== -->
   <div id="map"></div>
 
   <div class="chip-bar" id="tripBar">
     <button class="chip add" id="addTripBtn" type="button">➕ Déplacement</button>
   </div>
 
-  <!-- Info du déplacement sélectionné -->
   <div class="sel-bar" id="selBar" hidden>
     <div class="sel-info">
       <div class="sel-name" id="selName"></div>
@@ -34,34 +34,40 @@
     <button class="chip danger" id="delSelBtn" type="button">🗑️</button>
   </div>
 
-  <!-- Feuille d'ajout / édition -->
-  <div class="edit-sheet" id="editSheet" hidden>
-    <input id="tripName" type="text" placeholder="Nom (ex. Vers le puits d'Aïoun)" autocomplete="off">
-    <div id="tripStatus" class="gf-status none">—</div>
+  <!-- ===== VUE FORMULAIRE (création / édition) ===== -->
+  <section id="editView" class="form-page" hidden>
+    <div class="form-card">
+      <div class="form-field">
+        <label>Nom du déplacement</label>
+        <input id="tripName" type="text" placeholder="ex. Vers le puits d'Aïoun" autocomplete="off">
+      </div>
 
-    <div class="edit-field">
-      <label>🧑🏽 GPS du berger (tracker de référence)</label>
-      <select id="guideSel"></select>
-    </div>
+      <div class="form-field">
+        <label>🧑🏽 GPS du berger <span class="lbl-note">— le tracker qu'il porte</span></label>
+        <div id="guideChips" class="pick-chips"></div>
+      </div>
 
-    <div class="edit-field">
-      <label>Distance max au berger</label>
-      <div class="gf-radius-row">
-        <input id="threshold" type="range" min="1" max="20" step="1" value="3">
-        <span class="gf-radius-val"><span id="thresholdVal">3</span> km</span>
+      <div class="form-field">
+        <label>🐫 Chameaux du déplacement</label>
+        <div id="memberChips" class="pick-chips"></div>
+      </div>
+
+      <div class="form-field">
+        <label>📏 Distance max au berger</label>
+        <div class="gf-radius-row">
+          <input id="threshold" type="range" min="1" max="20" step="1" value="3">
+          <span class="gf-radius-val"><span id="thresholdVal">3</span> km</span>
+        </div>
+      </div>
+
+      <div id="tripStatus" class="gf-status none">—</div>
+
+      <div class="edit-actions">
+        <button class="ghost-btn" id="cancelBtn" type="button">Annuler</button>
+        <button class="primary grow" id="saveBtn" type="button">Enregistrer</button>
       </div>
     </div>
-
-    <div class="edit-field">
-      <label>Chameaux du déplacement</label>
-      <div id="members" class="members"></div>
-    </div>
-
-    <div class="edit-actions">
-      <button class="ghost-btn" id="cancelBtn" type="button">Annuler</button>
-      <button class="primary grow" id="saveBtn" type="button">Enregistrer</button>
-    </div>
-  </div>
+  </section>
 
   <div id="toast"></div>
 

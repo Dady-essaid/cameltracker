@@ -680,15 +680,42 @@ body.camps #map, body.trips #map { position: fixed; top: 52px; left: 0; right: 0
 .sel-bar .chip.start { background: var(--ok); color: #fff; border-color: var(--ok); }
 .sel-bar .chip.start.stop { background: var(--danger); border-color: var(--danger); }
 .sel-bar .chip.danger { color: var(--danger); }
-#guideSel {
+/* Formulaire de déplacement (plein écran) + sélection par boutons */
+.form-page {
+  position: fixed;
+  top: 52px; left: 0; right: 0; bottom: 0;
+  z-index: 950;
+  background: var(--sable);
+  overflow-y: auto;
+  padding: 14px 12px 24px;
+}
+.form-card { max-width: 620px; margin: 0 auto; }
+.form-field { margin-bottom: 16px; }
+.form-field > label { display: block; font-size: 14px; font-weight: 600; color: var(--marron); margin-bottom: 8px; }
+.lbl-note { font-weight: 400; color: var(--marron-clair); font-size: 12px; }
+.form-field input[type=text] {
   width: 100%;
-  padding: 10px 12px;
+  padding: 11px 12px;
   border: 1px solid var(--sable-fonce);
   border-radius: 10px;
   font-size: 15px;
   background: #fff;
   color: var(--texte);
 }
+.pick-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.pick {
+  border: 1px solid var(--sable-fonce);
+  background: var(--sable-clair);
+  color: var(--marron);
+  border-radius: 20px;
+  padding: 9px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.pick.active { background: var(--marron); color: var(--sable-clair); border-color: var(--marron); }
+.form-card #tripStatus { margin: 6px 0 12px; }
+.form-card .edit-actions { margin-top: 8px; }
 
 /* --- Feuille d'édition (carte plein écran + feuille basse) --- */
 .edit-sheet {

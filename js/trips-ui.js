@@ -1,6 +1,5 @@
-// trips-ui.js — page DÉPLACEMENTS : carte + boutons + création/démarrage.
-// Un déplacement = GPS du berger (référence) + chameaux + seuil, avec un cycle
-// Démarrer / Terminer. Actif = on alerte quand un chameau s'éloigne du berger.
+// trips-ui.js — page DÉPLACEMENTS : vue carte (boutons + Démarrer/Terminer)
+// et formulaire plein écran (berger + chameaux par boutons, seuil).
 (() => {
   const cfg = window.CT_CONFIG || {};
   const el = (id) => document.getElementById(id);
@@ -9,27 +8,32 @@
   let devices = [], positions = {};
   let selectedId = null;
   let draft = null;
-  let previewLayers = [];
-  let camelMarkers = [];
+  let previewLayers = [], camelMarkers = [];
 
   async function boot() {
     map = CTMap.create("map");
     await loadData();
     drawCamelContext();
 
-    el("addTripBtn").addEventListener("click", () => openEdit(null));
-    el("editSelBtn").addEventListener("click", () => selectedId && openEdit(selectedId));
+    el("addTripBtn").addEventListener("click", () => showEdit(null));
+    el("editSelBtn").addEventListener("click", () => selectedId && showEdit(selectedId));
     el("delSelBtn").addEventListener("click", removeSelected);
     el("startStopBtn").addEventListener("click", toggleStartStop);
-    el("cancelBtn").addEventListener("click", closeEdit);
+    el("cancelBtn").addEventListener("click", showMap);
     el("saveBtn").addEventListener("click", save);
+    el("headerBack").addEventListener("click", (e) => {
+      if (!el("editView").hidden) { e.preventDefault(); showMap(); }
+    });
 
     el("tripName").addEventListener("input", () => (draft.name = el("tripName").value));
-    el("guideSel").addEventListener("change", () => { draft.guideId = Number(el("guideSel").value); renderMembers(); redrawPreview(true); });
-    el("threshold").addEventListener("input", () => { draft.thresholdKm = +el("threshold").value; el("thresholdVal").textContent = draft.thresholdKm; redrawPreview(false); updateStatus(); });
+    el("threshold").addEventListener("input", () => {
+      draft.thresholdKm = +el("threshold").value;
+      el("thresholdVal").textContent = draft.thresholdKm;
+      updateStatus();
+    });
 
     renderChips();
-    drawActiveTrips();
+    showMap();
   }
 
   async function loadData() {
@@ -55,8 +59,21 @@
   function guideDefault() {
     return (devices.find((d) => d.guide) || devices.find((d) => /berger/i.test(d.name)) || devices[0] || {}).id;
   }
+  function nameOf(id) { return (devices.find((d) => d.id === id) || {}).name || "—"; }
 
-  // ---------- Boutons ----------
+  // ---------- Vue carte ----------
+  function showMap() {
+    draft = null;
+    el("editView").hidden = true;
+    el("tripBar").style.display = "";
+    el("pageTitle").textContent = "Déplacements";
+    el("headerBack").setAttribute("href", "index.html");
+    renderChips();
+    drawActiveTrips();
+    if (selectedId && Trips.get(selectedId)) selectTrip(selectedId);
+    else el("selBar").hidden = true;
+  }
+
   function renderChips() {
     const bar = el("tripBar");
     bar.querySelectorAll(".trip-chip").forEach((c) => c.remove());
@@ -72,19 +89,20 @@
 
   function selectTrip(id) {
     selectedId = id;
-    closeEditSilent();
     renderChips();
     const t = Trips.get(id);
     if (!t) { el("selBar").hidden = true; drawActiveTrips(); return; }
     drawActiveTrips();
     drawPreviewFor(t, true);
-    const guide = (devices.find((d) => d.id === t.guideId) || {}).name || "—";
     const n = (t.members || []).length;
-    el("selName").textContent = (Trips.isActive(t) ? "🟢 " : "") + t.name;
-    el("selSub").textContent = `Berger : ${guide} · ${n} chameau${n > 1 ? "x" : ""} · seuil ${t.thresholdKm} km`;
+    const active = Trips.isActive(t);
+    el("selName").textContent = (active ? "🟢 " : "") + t.name;
+    el("selSub").textContent = active
+      ? `Berger : ${nameOf(t.guideId)} · ${n} chameau${n > 1 ? "x" : ""} · seuil ${t.thresholdKm} km`
+      : `Non démarré · berger : ${nameOf(t.guideId)} · ${n} chameau${n > 1 ? "x" : ""}`;
     const btn = el("startStopBtn");
-    btn.textContent = Trips.isActive(t) ? "■ Terminer" : "▶ Démarrer";
-    btn.classList.toggle("stop", Trips.isActive(t));
+    btn.textContent = active ? "■ Terminer" : "▶ Démarrer";
+    btn.classList.toggle("stop", active);
     el("selBar").hidden = false;
   }
 
@@ -93,10 +111,10 @@
     if (!t) return;
     if (Trips.isActive(t)) { Trips.end(t.id); toast("Déplacement terminé"); }
     else {
-      if (!t.guideId) return toast("Choisis d'abord le GPS du berger");
+      if (t.guideId == null) return toast("Choisis le GPS du berger");
       if (!(t.members || []).length) return toast("Affecte au moins un chameau");
       Trips.start(t.id);
-      toast("Déplacement démarré");
+      toast("Déplacement démarré — suivi actif");
     }
     renderChips();
     selectTrip(t.id);
@@ -118,68 +136,64 @@
     const gm = L.marker([guide.latitude, guide.longitude], { icon: guideIcon(), zIndexOffset: 1000 })
       .addTo(map).bindTooltip("Berger", { direction: "top", offset: [0, -18], className: "camel-label" });
     previewLayers.push(circle, gm);
-    if (fit) map.fitBounds(circle.getBounds().pad(0.4));
-  }
-  function redrawPreview(fit) {
-    drawActiveTrips();
-    if (draft) drawPreviewFor(draft, fit);
+    if (fit) map.fitBounds(circle.getBounds().pad(0.5));
   }
 
-  // ---------- Édition ----------
-  function openEdit(id) {
+  // ---------- Formulaire ----------
+  function showEdit(id) {
     buildDraft(id);
     selectedId = id;
     el("selBar").hidden = true;
     el("tripBar").style.display = "none";
-    el("editSheet").hidden = false;
+    el("editView").hidden = false;
     el("pageTitle").textContent = draft.id ? draft.name : "Nouveau déplacement";
     el("tripName").value = draft.name;
     el("threshold").value = draft.thresholdKm;
     el("thresholdVal").textContent = draft.thresholdKm;
-    fillGuideSelect();
-    renderMembers();
-    setTimeout(() => { map.invalidateSize(); redrawPreview(true); }, 60);
-  }
-  function closeEdit() { closeEditSilent(); }
-  function closeEditSilent() {
-    draft = null;
-    el("editSheet").hidden = true;
-    el("tripBar").style.display = "";
-    el("pageTitle").textContent = "Déplacements";
-    drawActiveTrips();
+    renderGuideChips();
+    renderMemberChips();
+    updateStatus();
   }
   function buildDraft(id) {
     const t = id ? Trips.get(id) : null;
     if (t) draft = { id: t.id, name: t.name, guideId: t.guideId, members: (t.members || []).map(Number), thresholdKm: t.thresholdKm, startedAt: t.startedAt, endedAt: t.endedAt };
     else draft = { id: null, name: "", guideId: guideDefault(), members: [], thresholdKm: Trips.DEFAULT_THRESHOLD_KM, startedAt: null, endedAt: null };
   }
-  function fillGuideSelect() {
-    const sel = el("guideSel");
-    sel.innerHTML = "";
-    for (const d of devices) {
-      const o = document.createElement("option");
-      o.value = d.id;
-      o.textContent = d.name;
-      sel.appendChild(o);
-    }
-    sel.value = draft.guideId != null ? draft.guideId : "";
-  }
-  function renderMembers() {
-    const box = el("members");
+
+  function renderGuideChips() {
+    const box = el("guideChips");
     box.innerHTML = "";
     for (const d of devices) {
-      if (d.id === draft.guideId) continue; // le berger n'est pas un chameau surveillé
-      const inThis = draft.members.includes(Number(d.id));
-      const row = document.createElement("label");
-      row.className = "member";
-      row.innerHTML = `<input type="checkbox" ${inThis ? "checked" : ""} value="${d.id}"><span class="m-name">${CTMap.escapeHtml(d.name)}</span>`;
-      row.querySelector("input").addEventListener("change", (e) => {
-        const id = Number(d.id);
-        if (e.target.checked) { if (!draft.members.includes(id)) draft.members.push(id); }
-        else draft.members = draft.members.filter((m) => m !== id);
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "pick" + (d.id === draft.guideId ? " active" : "");
+      b.textContent = d.name;
+      b.addEventListener("click", () => {
+        draft.guideId = d.id;
+        draft.members = draft.members.filter((m) => m !== d.id); // le berger n'est pas un membre
+        renderGuideChips();
+        renderMemberChips();
         updateStatus();
       });
-      box.appendChild(row);
+      box.appendChild(b);
+    }
+  }
+  function renderMemberChips() {
+    const box = el("memberChips");
+    box.innerHTML = "";
+    for (const d of devices) {
+      if (d.id === draft.guideId) continue;
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "pick" + (draft.members.includes(d.id) ? " active" : "");
+      b.textContent = d.name;
+      b.addEventListener("click", () => {
+        if (draft.members.includes(d.id)) draft.members = draft.members.filter((m) => m !== d.id);
+        else draft.members.push(d.id);
+        renderMemberChips();
+        updateStatus();
+      });
+      box.appendChild(b);
     }
   }
 
@@ -188,7 +202,8 @@
     const box = el("tripStatus");
     const guide = positions[draft.guideId];
     const n = draft.members.length;
-    if (!n) { box.className = "gf-status none"; box.textContent = "Aucun chameau affecté"; return; }
+    if (draft.guideId == null) { box.className = "gf-status none"; box.textContent = "Choisis le GPS du berger"; return; }
+    if (!n) { box.className = "gf-status none"; box.textContent = "Ajoute au moins un chameau"; return; }
     if (!guide) { box.className = "gf-status none"; box.textContent = "Position du berger inconnue"; return; }
     let maxD = 0;
     for (const m of draft.members) {
@@ -199,7 +214,7 @@
     const out = maxD > draft.thresholdKm;
     box.className = "gf-status " + (out ? "outside" : "inside");
     box.textContent = out
-      ? `Un chameau s'éloigne — écart max ${maxD.toFixed(1)} km (seuil ${draft.thresholdKm} km)`
+      ? `Un chameau s'éloignerait — écart max ${maxD.toFixed(1)} km (seuil ${draft.thresholdKm} km)`
       : `Groupé autour du berger — écart max ${maxD.toFixed(1)} km`;
   }
 
@@ -212,10 +227,9 @@
     const trip = { id: draft.id || "trip_" + Date.now().toString(36), name, guideId: draft.guideId, members: draft.members, thresholdKm: draft.thresholdKm, startedAt: draft.startedAt, endedAt: draft.endedAt };
     Trips.upsert(trip);
     const savedId = trip.id;
-    closeEditSilent();
-    renderChips();
     toast(`Déplacement « ${name} » enregistré`);
-    selectTrip(savedId);
+    selectedId = savedId;
+    showMap();
   }
   function removeSelected() {
     if (!selectedId) return;
