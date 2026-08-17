@@ -248,6 +248,147 @@ header .dot.off { background: var(--danger); }
   font-size: 20px;
 }
 
+/* ---- Bouton retour / nav dans l'en-tête ---- */
+header .back, header .nav {
+  color: var(--sable-clair);
+  text-decoration: none;
+  font-size: 22px;
+  line-height: 1;
+  padding: 4px 8px;
+  border-radius: 8px;
+}
+header .nav {
+  font-size: 20px;
+  margin-left: 4px;
+}
+header .back:active, header .nav:active { background: rgba(255,255,255,0.15); }
+
+/* ---- Page historique : barre de contrôle ---- */
+.hist-controls {
+  position: fixed;
+  top: 52px; left: 0; right: 0;
+  background: var(--sable-clair);
+  box-shadow: var(--ombre);
+  z-index: 800;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.hist-controls .row1 { display: flex; gap: 8px; }
+.hist-controls select, .hist-controls input {
+  padding: 8px 10px;
+  border: 1px solid var(--sable-fonce);
+  border-radius: 8px;
+  font-size: 14px;
+  background: #fff;
+  color: var(--texte);
+}
+.hist-controls #device { flex: 1; }
+.hist-controls .primary {
+  border: none;
+  background: var(--marron);
+  color: var(--sable-clair);
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+}
+.hist-controls .row2 { display: flex; gap: 8px; flex-wrap: wrap; }
+.hist-controls .row2 label {
+  flex: 1;
+  font-size: 12px;
+  color: var(--marron-clair);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 140px;
+}
+.hist-controls .row3 { display: flex; gap: 6px; }
+.hist-controls .chip {
+  border: 1px solid var(--sable-fonce);
+  background: var(--sable);
+  color: var(--marron);
+  border-radius: 16px;
+  padding: 5px 12px;
+  font-size: 13px;
+  cursor: pointer;
+}
+.hist-controls .chip:active { background: var(--sable-fonce); }
+
+/* Sur la page historique, la carte laisse la place à la barre de contrôle */
+body.hist #map { top: 190px; bottom: 0; }
+
+/* ---- Barre de lecture (playback) ---- */
+.playbar {
+  position: fixed;
+  left: 10px; right: 10px;
+  bottom: calc(46px + 10px);
+  background: var(--sable-clair);
+  border-radius: 14px;
+  box-shadow: var(--ombre);
+  z-index: 850;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+}
+.playbar .play {
+  border: none;
+  background: var(--marron);
+  color: var(--sable-clair);
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  font-size: 15px;
+  cursor: pointer;
+  flex: none;
+}
+.playbar #scrub { flex: 1; accent-color: var(--marron); }
+.playbar .speed {
+  border: 1px solid var(--sable-fonce);
+  border-radius: 8px;
+  padding: 5px 6px;
+  background: #fff;
+  font-size: 13px;
+}
+.playbar .time {
+  font-size: 12px;
+  color: var(--marron-clair);
+  white-space: nowrap;
+  min-width: 96px;
+  text-align: right;
+}
+
+/* ---- Panneau des arrêts ---- */
+.hist-panel .empty {
+  padding: 16px;
+  text-align: center;
+  color: var(--marron-clair);
+  font-size: 13px;
+}
+.stop-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  margin: 6px 0;
+  background: var(--sable);
+  border-radius: 12px;
+  cursor: pointer;
+}
+.stop-item:active { background: var(--sable-fonce); }
+.stop-item .badge {
+  width: 26px; height: 26px; flex: none;
+  background: var(--marron);
+  color: var(--sable-clair);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 700;
+}
+.stop-item .dur { font-weight: 600; color: var(--marron); }
+.stop-item .sub { font-size: 12px; color: var(--marron-clair); }
+
 /* ---- Écran large : liste à gauche, panneau fixe ---- */
 @media (min-width: 820px) {
   #panel {

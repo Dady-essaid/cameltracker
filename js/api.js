@@ -98,16 +98,33 @@ const DEMO = (() => {
   }
 
   function route(deviceId, from, to) {
-    // Petit trajet fictif : une boucle de points.
+    // Trajet fictif réaliste entre from et to : marche + 2 arrêts prolongés.
     const c = state.find((x) => x.id === Number(deviceId)) || state[0];
+    const t0 = new Date(from).getTime();
+    const t1 = new Date(to).getTime();
+    const stepMs = 30 * 60000; // un point toutes les 30 min
+    const n = Math.max(6, Math.min(240, Math.floor((t1 - t0) / stepMs)));
     const pts = [];
-    for (let i = 0; i < 20; i++) {
+    let lat = c.lat;
+    let lon = c.lon;
+    // Fenêtres d'arrêt (le chameau ne bouge pas), en fraction du trajet.
+    const stopWindows = [
+      [0.25, 0.38],
+      [0.62, 0.72],
+    ];
+    for (let i = 0; i < n; i++) {
+      const f = i / (n - 1);
+      const stopped = stopWindows.some(([a, b]) => f >= a && f <= b);
+      if (!stopped) {
+        lat += Math.sin(i * 1.3 + c.id) * 0.006 + 0.004;
+        lon += Math.cos(i * 0.9 + c.id) * 0.006 + 0.003;
+      }
       pts.push({
         deviceId: c.id,
-        latitude: c.lat + Math.sin(i / 3) * 0.02,
-        longitude: c.lon + Math.cos(i / 3) * 0.02,
-        deviceTime: new Date(Date.now() - (20 - i) * 3600000).toISOString(),
-        speed: Math.abs(Math.sin(i)) * 6,
+        latitude: lat,
+        longitude: lon,
+        deviceTime: new Date(t0 + i * stepMs).toISOString(),
+        speed: stopped ? 0 : 2 + Math.abs(Math.sin(i * 1.7)) * 6, // nœuds
         attributes: { batteryLevel: c.battery },
       });
     }

@@ -15,14 +15,8 @@ const CTMap = (() => {
       popupAnchor: [0, -22],
     });
 
-  function init() {
-    map = L.map("map", { zoomControl: false }).setView(
-      cfg.defaultCenter || [18.07, -15.96],
-      cfg.defaultZoom || 6
-    );
-    L.control.zoom({ position: "topright" }).addTo(map);
-
-    // Fond satellite Esri World Imagery (gratuit).
+  // Ajoute le fond satellite + labels sur une carte donnée (partagé entre pages).
+  function addBaseLayers(m) {
     L.tileLayer(
       "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
       {
@@ -30,14 +24,27 @@ const CTMap = (() => {
         attribution:
           "Tuiles &copy; Esri — Source: Esri, Maxar, Earthstar Geographics",
       }
-    ).addTo(map);
-
-    // Noms de lieux par-dessus le satellite (labels).
+    ).addTo(m);
     L.tileLayer(
       "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}",
       { maxZoom: 18, opacity: 0.9 }
-    ).addTo(map);
+    ).addTo(m);
+    return m;
+  }
 
+  // Crée une carte satellite prête à l'emploi dans l'élément donné.
+  function create(elId, opts = {}) {
+    const m = L.map(elId, { zoomControl: false }).setView(
+      opts.center || cfg.defaultCenter || [18.07, -15.96],
+      opts.zoom || cfg.defaultZoom || 6
+    );
+    L.control.zoom({ position: "topright" }).addTo(m);
+    addBaseLayers(m);
+    return m;
+  }
+
+  function init() {
+    map = create("map");
     return map;
   }
 
@@ -113,5 +120,5 @@ const CTMap = (() => {
     return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   }
 
-  return { init, upsert, focus, fitAll, isStale, timeAgo, escapeHtml };
+  return { init, create, addBaseLayers, upsert, focus, fitAll, isStale, timeAgo, escapeHtml };
 })();

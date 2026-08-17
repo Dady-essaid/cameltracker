@@ -15,8 +15,10 @@ carte satellite, à partir d'un serveur **Traccar**.
 - ✅ Rafraîchissement automatique (30 s par défaut)
 - ✅ Connexion Traccar (session) + **mode démo** sans serveur
 - ✅ PWA : installable sur l'écran d'accueil, cache des tuiles hors ligne
+- ✅ **Historique des trajets** : sélection chameau + dates, tracé coloré par
+  vitesse, points d'arrêt (durée), lecture animée (playback x4–x32)
 
-À venir : historique des trajets, géofencing, alertes/notifications, tableau de bord.
+À venir : géofencing, alertes/notifications, tableau de bord.
 
 ## Démarrer en local
 
@@ -59,12 +61,14 @@ window.CT_CONFIG = {
 ```
 cameltracker/
   index.html        carte temps réel (MVP)
+  history.html      historique des trajets + playback
   config.js         configuration (URL Traccar, mode démo)
   css/style.css     thème désert, mobile-first
   js/
     api.js          appels API Traccar (+ données démo)
-    map.js          carte Leaflet et marqueurs
+    map.js          carte Leaflet et marqueurs (partagé)
     app.js          logique : login, refresh, liste
+    history.js      trajet, arrêts, lecture animée
   img/camel.svg     icône chameau
   manifest.json     PWA
   sw.js             service worker (cache tuiles + app shell)
