@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#6b4a2b">
+  <title>CamelTracker</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="img/camel.svg">
+  <!-- Leaflet -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- En-tête -->
+  <header>
+    <img src="img/camel.svg" alt="" width="28" height="28">
+    <h1>CamelTracker <span id="demoBadge" style="display:none;font-size:11px;background:#5a7a4a;padding:2px 6px;border-radius:8px;">DÉMO</span></h1>
+    <div class="status">
+      <span id="statusDot" class="dot"></span>
+      <span id="statusText">…</span>
+    </div>
+  </header>
+
+  <!-- Carte -->
+  <div id="map"></div>
+
+  <!-- Bouton recentrer -->
+  <div id="recenter" class="recenter" title="Voir tous les chameaux">⤢</div>
+
+  <!-- Panneau liste des chameaux -->
+  <div id="panel">
+    <div id="panelHandle" class="handle">🐪 Mes chameaux (<span id="count">0</span>)</div>
+    <div id="list" class="list"></div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast"></div>
+
+  <!-- Écran de connexion -->
+  <div id="login" style="display:none;">
+    <div class="card">
+      <img src="img/camel.svg" alt="">
+      <h2>CamelTracker</h2>
+      <p>Connexion à ton serveur Traccar</p>
+      <form id="loginForm">
+        <input id="email" type="email" placeholder="Email" autocomplete="username" required>
+        <input id="password" type="password" placeholder="Mot de passe" autocomplete="current-password" required>
+        <button type="submit">Se connecter</button>
+        <div id="loginErr" class="err"></div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Leaflet + scripts app -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/map.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

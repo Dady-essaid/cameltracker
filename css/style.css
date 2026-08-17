@@ -1,0 +1,267 @@
+/* CamelTracker — thème désert, mobile-first */
+:root {
+  --sable: #e9dcc3;
+  --sable-clair: #f4ecdb;
+  --sable-fonce: #d8c39a;
+  --marron: #6b4a2b;
+  --marron-clair: #8a6a45;
+  --vert: #5a7a4a;
+  --ciel: #3d6e8f;
+  --texte: #33291c;
+  --danger: #b3492f;
+  --ok: #4f8a3d;
+  --ombre: 0 2px 10px rgba(60, 40, 20, 0.18);
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color: var(--texte);
+  background: var(--sable);
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ---- En-tête ---- */
+header {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 14px;
+  background: var(--marron);
+  color: var(--sable-clair);
+  box-shadow: var(--ombre);
+  z-index: 1000;
+}
+header h1 {
+  font-size: 17px;
+  margin: 0;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+header .status {
+  margin-left: auto;
+  font-size: 12px;
+  opacity: 0.9;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+header .dot {
+  width: 9px; height: 9px; border-radius: 50%;
+  background: var(--ok);
+  box-shadow: 0 0 0 0 rgba(79,138,61,0.6);
+}
+header .dot.off { background: var(--danger); }
+
+/* ---- Carte plein écran ---- */
+#map {
+  position: fixed;
+  top: 52px; left: 0; right: 0; bottom: 0;
+  background: var(--sable-fonce);
+  z-index: 1;
+}
+
+/* ---- Marqueur chameau ---- */
+.camel-marker {
+  width: 42px; height: 42px;
+  background: var(--sable-clair);
+  border: 2px solid var(--marron);
+  border-radius: 50%;
+  box-shadow: var(--ombre);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.camel-marker img { width: 30px; height: 30px; }
+.camel-marker.stale { border-color: #9a9a9a; filter: grayscale(0.6); opacity: 0.75; }
+.camel-label {
+  background: var(--marron);
+  color: var(--sable-clair);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 10px;
+  white-space: nowrap;
+  box-shadow: var(--ombre);
+}
+
+/* ---- Popup Leaflet personnalisé ---- */
+.leaflet-popup-content-wrapper {
+  border-radius: 12px;
+  background: var(--sable-clair);
+}
+.ct-popup h3 { margin: 0 0 6px; color: var(--marron); font-size: 15px; }
+.ct-popup .row { display: flex; justify-content: space-between; gap: 16px; font-size: 13px; padding: 2px 0; }
+.ct-popup .row b { color: var(--marron-clair); font-weight: 600; }
+.ct-popup .bat { font-weight: 700; }
+.ct-popup .bat.low { color: var(--danger); }
+
+/* ---- Liste des chameaux (panneau bas, mobile-first) ---- */
+#panel {
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  background: var(--sable-clair);
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+  box-shadow: 0 -4px 16px rgba(60,40,20,0.2);
+  z-index: 900;
+  max-height: 45vh;
+  transform: translateY(calc(100% - 46px));
+  transition: transform 0.25s ease;
+}
+#panel.open { transform: translateY(0); }
+#panel .handle {
+  height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--marron);
+  user-select: none;
+}
+#panel .handle::before {
+  content: "";
+  position: absolute;
+  top: 8px;
+  width: 40px; height: 4px;
+  border-radius: 2px;
+  background: var(--sable-fonce);
+}
+#panel .list { overflow-y: auto; max-height: calc(45vh - 46px); padding: 0 10px 14px; }
+
+.camel-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  margin: 6px 0;
+  background: var(--sable);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.camel-item:active { background: var(--sable-fonce); }
+.camel-item .ava {
+  width: 38px; height: 38px; flex: none;
+  background: var(--sable-clair);
+  border: 2px solid var(--marron);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+}
+.camel-item .ava img { width: 26px; height: 26px; }
+.camel-item .meta { flex: 1; min-width: 0; }
+.camel-item .meta .name { font-weight: 600; color: var(--marron); }
+.camel-item .meta .sub { font-size: 12px; color: var(--marron-clair); }
+.camel-item .bat {
+  font-size: 13px; font-weight: 700; color: var(--ok);
+  display: flex; align-items: center; gap: 4px;
+}
+.camel-item .bat.low { color: var(--danger); }
+
+/* ---- Écran de connexion ---- */
+#login {
+  position: fixed; inset: 0;
+  background: var(--sable);
+  z-index: 2000;
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+}
+#login .card {
+  background: var(--sable-clair);
+  border-radius: 16px;
+  box-shadow: var(--ombre);
+  padding: 26px 22px;
+  width: 100%; max-width: 340px;
+  text-align: center;
+}
+#login .card img { width: 64px; height: 64px; }
+#login h2 { color: var(--marron); margin: 8px 0 4px; }
+#login p { color: var(--marron-clair); font-size: 13px; margin: 0 0 18px; }
+#login input {
+  width: 100%;
+  padding: 12px 14px;
+  margin: 6px 0;
+  border: 1px solid var(--sable-fonce);
+  border-radius: 10px;
+  font-size: 15px;
+  background: #fff;
+}
+#login button {
+  width: 100%;
+  padding: 12px;
+  margin-top: 12px;
+  border: none;
+  border-radius: 10px;
+  background: var(--marron);
+  color: var(--sable-clair);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+#login button:active { background: var(--marron-clair); }
+#login .err { color: var(--danger); font-size: 13px; min-height: 18px; margin-top: 8px; }
+#login .demo-note {
+  font-size: 12px; color: var(--vert); margin-top: 14px; font-weight: 600;
+}
+
+/* ---- Toast / notifications ---- */
+#toast {
+  position: fixed;
+  top: 62px; left: 50%;
+  transform: translateX(-50%);
+  background: var(--marron);
+  color: var(--sable-clair);
+  padding: 10px 16px;
+  border-radius: 20px;
+  font-size: 13px;
+  box-shadow: var(--ombre);
+  z-index: 1500;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s;
+}
+#toast.show { opacity: 1; }
+
+/* ---- Bouton recentrer ---- */
+.recenter {
+  position: fixed;
+  right: 14px;
+  bottom: calc(46px + 14px);
+  width: 46px; height: 46px;
+  background: var(--sable-clair);
+  border: 2px solid var(--marron);
+  border-radius: 50%;
+  box-shadow: var(--ombre);
+  z-index: 950;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  font-size: 20px;
+}
+
+/* ---- Écran large : liste à gauche, panneau fixe ---- */
+@media (min-width: 820px) {
+  #panel {
+    top: 52px; bottom: 0; left: 0; right: auto;
+    width: 320px;
+    max-height: none;
+    transform: none;
+    border-radius: 0;
+    border-right: 1px solid var(--sable-fonce);
+    box-shadow: 2px 0 12px rgba(60,40,20,0.12);
+  }
+  #panel .handle { justify-content: flex-start; padding: 0 16px; }
+  #panel .handle::before { display: none; }
+  #panel .list { max-height: calc(100vh - 52px - 46px); }
+  #map { left: 320px; }
+  .recenter { bottom: 24px; }
+}

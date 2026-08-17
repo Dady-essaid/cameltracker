@@ -1,0 +1,14 @@
+{
+  "name": "CamelTracker",
+  "short_name": "CamelTracker",
+  "description": "Suivi GPS des chameaux en temps réel",
+  "lang": "fr",
+  "start_url": "index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#e9dcc3",
+  "theme_color": "#6b4a2b",
+  "icons": [
+    { "src": "img/camel.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
