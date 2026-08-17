@@ -545,6 +545,49 @@ body.gf #map { left: 0; }
 .gf-status.none { background: var(--sable); color: var(--marron-clair); }
 .gf-empty { text-align: center; color: var(--marron-clair); font-size: 14px; padding: 20px; }
 
+/* ---- Page Camps : sélecteur + membres ---- */
+.camp-selrow { display: flex; gap: 8px; align-items: stretch; }
+.camp-selrow select { flex: 1; }
+.camp-selrow .chip { white-space: nowrap; }
+#campName {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--sable-fonce);
+  border-radius: 10px;
+  font-size: 15px;
+  background: #fff;
+  color: var(--texte);
+}
+#campSelect {
+  padding: 9px 10px;
+  border: 1px solid var(--sable-fonce);
+  border-radius: 8px;
+  font-size: 14px;
+  background: #fff;
+  color: var(--texte);
+}
+#centerBtn { margin-top: 4px; }
+.members { display: flex; flex-direction: column; gap: 4px; }
+.member {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 10px;
+  background: var(--sable);
+  border-radius: 10px;
+  cursor: pointer;
+}
+.member input { width: 18px; height: 18px; accent-color: var(--marron); flex: none; }
+.member .m-name { flex: 1; font-weight: 600; color: var(--marron); }
+.member .m-tag {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--marron-clair);
+  background: var(--sable-fonce);
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
 /* ---- Cloche d'alertes + badge ---- */
 header .bell {
   position: relative;

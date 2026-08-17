@@ -17,15 +17,22 @@ carte satellite, à partir d'un serveur **Traccar**.
 - ✅ PWA : installable sur l'écran d'accueil, cache des tuiles hors ligne
 - ✅ **Historique des trajets** : sélection chameau + dates, tracé coloré par
   vitesse, points d'arrêt (durée), lecture animée (playback x4–x32)
-- ✅ **Géofencing par chameau** : zone propre à chaque chameau, au choix
-  **cercle** (rayon + campement déplaçable) ou **forme libre** (polygone
-  dessiné au doigt, sommets ajustables — ex. 15 km à l'est, 30 km à l'ouest) ;
-  réglable à tout moment ; statut « dans la zone / HORS ZONE » sur la carte
-- ✅ **Alertes / notifications** : cloche + panneau sur le site, avec trois
-  types d'alerte par chameau — **sortie de zone**, **immobilité prolongée**
-  (seuil en heures) et **batterie faible** du tracker (seuil %). Seuils
-  réglables, badge de non-lus, toast en direct, historique des alertes
-  résolues, et notifications système du navigateur (facultatives).
+- ✅ **Camps (bases) + géofencing** : on crée des camps, chacun avec sa
+  **géofence** (cercle avec rayon/campement déplaçable, ou **forme libre**
+  polygone) et sa **liste de chameaux affectés**. Chaque camp a un **mode** :
+  - `Au campement` : les chameaux doivent rester dans la zone du camp ;
+  - `En déplacement` : la zone fixe est ignorée, on alerte si un chameau
+    **s'éloigne du groupe** au-delà d'un seuil de cohésion (km) réglable —
+    pratique pour un trajet d'un point à un autre.
+
+  Règle unique : **un chameau appartient à un seul camp**, donc une seule règle
+  s'applique (sortie de zone *ou* cohésion, jamais les deux).
+- ✅ **Alertes / notifications** : cloche + panneau sur le site, avec quatre
+  types d'alerte par chameau — **sortie de zone**, **éloignement du groupe**
+  (mode déplacement), **immobilité prolongée** (seuil en heures) et **batterie
+  faible** du tracker (seuil %). Seuils/toggles réglables, badge de non-lus,
+  toast en direct, historique des alertes résolues, et notifications système du
+  navigateur (facultatives).
 - ✅ **Tableau de bord** : synthèse du troupeau — mini-carte (tous les
   chameaux + zones d'un coup d'œil), **dispersion** (étendue du troupeau) et
   **chameau le plus éloigné de son campement**, alertes actives, et état par
@@ -74,7 +81,7 @@ window.CT_CONFIG = {
 cameltracker/
   index.html        carte temps réel (MVP)
   history.html      historique des trajets + playback
-  geofence.html     zones par chameau (rayon + campement)
+  camps.html        gestion des camps (zones + affectation + mode)
   dashboard.html    tableau de bord (mini-carte + dispersion + alertes)
   config.js         configuration (URL Traccar, mode démo)
   css/style.css     thème désert, mobile-first
@@ -83,9 +90,11 @@ cameltracker/
     map.js          carte Leaflet et marqueurs (partagé)
     app.js          logique : login, refresh, liste
     history.js      trajet, arrêts, lecture animée
-    geofence.js     module zones (stockage, distance, in/out)
-    geofence-ui.js  page de gestion des zones
-    alerts.js       module alertes (zone / immobilité / batterie)
+    geofence.js     géométrie des zones (distance, in/out, status)
+    camps.js        modèle des camps (affectation, statut, migration)
+    camps-ui.js     page de gestion des camps
+    alerts.js       module alertes (zone / groupe / immobilité / batterie)
+    dashboard.js    tableau de bord
   img/camel.svg     icône chameau
   manifest.json     PWA
   sw.js             service worker (cache tuiles + app shell)

@@ -3,7 +3,7 @@ const CTMap = (() => {
   const cfg = window.CT_CONFIG || {};
   let map;
   const markers = {}; // deviceId -> L.marker
-  const fences = {}; // deviceId -> L.circle (zone géofence)
+  const campLayers = {}; // campId -> [L.Layer] (zone du camp)
 
   const camelIcon = (stale, outside) =>
     L.divIcon({
@@ -85,14 +85,41 @@ const CTMap = (() => {
     m._ctPos = pos;
   }
 
-  // Dessine / met à jour la zone d'un chameau (cercle OU polygone).
-  function setGeofence(deviceId, gf, outside) {
-    if (fences[deviceId]) {
-      map.removeLayer(fences[deviceId]);
-      delete fences[deviceId];
+  // Dessine / met à jour les zones de TOUS les camps.
+  // camps : liste Camps.all() ; statusByDevice : { deviceId: statut } pour
+  // colorer en rouge un camp dont au moins un membre est hors règle.
+  function renderCamps(camps, positionsById, statusByDevice) {
+    const seen = new Set();
+    for (const camp of camps || []) {
+      seen.add(camp.id);
+      const anyOut = (camp.members || []).some(
+        (m) => statusByDevice[m] && statusByDevice[m].outside
+      );
+      drawCampZone(camp, positionsById, anyOut);
     }
-    if (!gf || !gf.enabled) return;
-    const color = outside ? "#b3492f" : "#4f8a3d";
+    for (const id of Object.keys(campLayers)) {
+      if (!seen.has(id)) removeCampLayer(id);
+    }
+  }
+  function removeCampLayer(id) {
+    (campLayers[id] || []).forEach((l) => map.removeLayer(l));
+    delete campLayers[id];
+  }
+  function campCentroid(camp, positionsById) {
+    const pts = (camp.members || []).map((m) => positionsById[m]).filter(Boolean);
+    if (!pts.length) return null;
+    let lat = 0;
+    let lon = 0;
+    for (const p of pts) {
+      lat += p.latitude;
+      lon += p.longitude;
+    }
+    return { lat: lat / pts.length, lon: lon / pts.length, count: pts.length };
+  }
+  function drawCampZone(camp, positionsById, anyOut) {
+    removeCampLayer(camp.id);
+    const move = camp.mode === "move";
+    const color = anyOut ? "#b3492f" : move ? "#3d6e8f" : "#4f8a3d";
     const style = {
       color,
       weight: 2,
@@ -101,16 +128,26 @@ const CTMap = (() => {
       fillOpacity: 0.07,
       dashArray: "6 6",
     };
-    if (gf.type === "polygon") {
-      if (!gf.points || gf.points.length < 3) return;
-      fences[deviceId] = L.polygon(gf.points, style).addTo(map);
+    const layers = [];
+    if (move) {
+      // Cercle de cohésion autour du barycentre du groupe.
+      const c = campCentroid(camp, positionsById);
+      if (c && c.count >= 2) {
+        layers.push(
+          L.circle([c.lat, c.lon], { radius: (camp.cohesionKm || 3) * 1000, ...style }).addTo(map)
+        );
+      }
     } else {
-      if (gf.lat == null) return;
-      fences[deviceId] = L.circle([gf.lat, gf.lon], {
-        radius: gf.radiusKm * 1000,
-        ...style,
-      }).addTo(map);
+      const gf = camp.geofence || {};
+      if (gf.type === "polygon") {
+        if (gf.points && gf.points.length >= 3) layers.push(L.polygon(gf.points, style).addTo(map));
+      } else if (gf.lat != null) {
+        layers.push(
+          L.circle([gf.lat, gf.lon], { radius: (gf.radiusKm || 1) * 1000, ...style }).addTo(map)
+        );
+      }
     }
+    if (layers.length) campLayers[camp.id] = layers;
   }
 
   function popupHtml(device, pos, st) {
@@ -119,14 +156,26 @@ const CTMap = (() => {
     const low = bat != null && bat < 25;
     let zoneRow = "";
     if (st && st.state !== "none") {
-      const detail =
-        st.distanceKm != null ? ` · ${st.distanceKm.toFixed(1)}/${st.radiusKm} km` : "";
-      zoneRow = st.outside
-        ? `<div class="row"><b>Zone</b><span class="bat low">HORS ZONE${detail}</span></div>`
-        : `<div class="row"><b>Zone</b><span style="color:#4f8a3d;font-weight:700">Dans la zone${detail}</span></div>`;
+      if (st.type === "cohesion") {
+        const detail =
+          st.distanceKm != null ? ` · ${st.distanceKm.toFixed(1)}/${st.thresholdKm} km` : "";
+        zoneRow = st.outside
+          ? `<div class="row"><b>Groupe</b><span class="bat low">S'ÉLOIGNE${detail}</span></div>`
+          : `<div class="row"><b>Groupe</b><span style="color:#4f8a3d;font-weight:700">Avec le groupe${detail}</span></div>`;
+      } else {
+        const detail =
+          st.distanceKm != null ? ` · ${st.distanceKm.toFixed(1)}/${st.radiusKm} km` : "";
+        zoneRow = st.outside
+          ? `<div class="row"><b>Zone</b><span class="bat low">HORS ZONE${detail}</span></div>`
+          : `<div class="row"><b>Zone</b><span style="color:#4f8a3d;font-weight:700">Dans la zone${detail}</span></div>`;
+      }
     }
+    const campRow = st && st.campName
+      ? `<div class="row"><b>Camp</b><span>${escapeHtml(st.campName)}</span></div>`
+      : "";
     return `<div class="ct-popup">
       <h3>${escapeHtml(device.name)}</h3>
+      ${campRow}
       <div class="row"><b>Vitesse</b><span>${kmh} km/h</span></div>
       <div class="row"><b>Batterie</b><span class="bat ${low ? "low" : ""}">${
       bat != null ? bat + " %" : "—"
@@ -171,5 +220,5 @@ const CTMap = (() => {
     return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   }
 
-  return { init, create, addBaseLayers, upsert, setGeofence, focus, fitAll, isStale, timeAgo, escapeHtml };
+  return { init, create, addBaseLayers, upsert, renderCamps, focus, fitAll, isStale, timeAgo, escapeHtml };
 })();

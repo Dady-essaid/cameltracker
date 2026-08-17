@@ -13,6 +13,7 @@
 
   const ALERT_META = {
     zone: { icon: "📍", label: "Sortie de zone" },
+    cohesion: { icon: "🧭", label: "S'éloigne du groupe" },
     immobile: { icon: "💤", label: "Immobilité" },
     battery: { icon: "🔋", label: "Batterie faible" },
   };
@@ -36,6 +37,9 @@
   async function refresh() {
     try {
       devices = await API.getDevices();
+      const nameById = {};
+      for (const d of devices) nameById[d.id] = d.name;
+      Camps.migrateFromGeofences(nameById);
       const positions = await API.getPositions();
       positionsById = {};
       for (const p of positions) positionsById[p.deviceId] = p;
@@ -44,14 +48,12 @@
       for (const d of devices) {
         const pos = positionsById[d.id];
         if (pos) {
-          const st = Geofence.status(pos, Geofence.get(d.id));
+          const st = Camps.statusFor(d.id, positionsById);
           statusById[d.id] = st;
-          if (mapReady) {
-            CTMap.upsert(d, pos, { status: st, onClick: goToCamel });
-            CTMap.setGeofence(d.id, Geofence.get(d.id), st.outside);
-          }
+          if (mapReady) CTMap.upsert(d, pos, { status: st, onClick: goToCamel });
         }
       }
+      if (mapReady) CTMap.renderCamps(Camps.all(), positionsById, statusById);
       if (mapReady && !fitted) {
         CTMap.fitAll();
         fitted = true;
@@ -68,14 +70,17 @@
     }
   }
 
-  // ---------- Distance d'un chameau à son campement (cercle) ----------
-  // Renvoie { km, radius, out } ou null (pas de zone cercle exploitable).
-  function campDistance(deviceId) {
-    const pos = positionsById[deviceId];
-    const gf = Geofence.get(deviceId);
-    if (!pos || !gf || !gf.enabled || gf.type === "polygon" || gf.lat == null) return null;
-    const km = Geofence.distanceKm(pos.latitude, pos.longitude, gf.lat, gf.lon);
-    return { km, radius: gf.radiusKm, out: km > gf.radiusKm };
+  // ---------- Distance « utile » d'un chameau (via son statut de camp) ----------
+  // camp cercle -> distance au campement ; camp en déplacement -> distance au
+  // groupe. Renvoie { km, out, label, radius? } ou null.
+  function distInfo(deviceId) {
+    const st = statusById[deviceId];
+    if (!st || st.distanceKm == null) return null;
+    if (st.type === "cohesion")
+      return { km: st.distanceKm, out: st.outside, label: "du groupe" };
+    if (st.type === "circle")
+      return { km: st.distanceKm, out: st.outside, label: "du campement", radius: st.radiusKm };
+    return null; // polygone (pas de distance simple) ou aucune règle
   }
 
   // ---------- Synthèse du troupeau ----------
@@ -109,11 +114,11 @@
       el("herdSpreadSub").textContent = pair ? `entre ${pair[0]} et ${pair[1]}` : "";
     }
 
-    // Plus éloigné de son campement (zones cercle).
+    // Plus éloigné de son campement (camps sédentaires à zone cercle).
     let far = null;
     for (const { d } of pts) {
-      const c = campDistance(d.id);
-      if (c && (!far || c.km > far.km)) far = { name: d.name, ...c };
+      const c = distInfo(d.id);
+      if (c && c.label === "du campement" && (!far || c.km > far.km)) far = { name: d.name, ...c };
     }
     if (!far) {
       el("herdFar").textContent = "—";
@@ -169,8 +174,8 @@
       const na = (alertsByDevice[a.id] || []).length;
       const nb = (alertsByDevice[b.id] || []).length;
       if (na !== nb) return nb - na;
-      const da = campDistance(a.id)?.km ?? -1;
-      const db = campDistance(b.id)?.km ?? -1;
+      const da = distInfo(a.id)?.km ?? -1;
+      const db = distInfo(b.id)?.km ?? -1;
       if (da !== db) return db - da;
       return String(a.name).localeCompare(String(b.name));
     });
@@ -183,13 +188,15 @@
         const kmh = pos?.speed != null ? (pos.speed * 1.852).toFixed(1) : "—";
         const stale = pos ? isStale(pos.deviceTime) : true;
         const badges = alertsByDevice[d.id] || [];
-        const camp = campDistance(d.id);
+        const di = distInfo(d.id);
+        const campObj = Camps.campOfDevice(d.id);
+        const coh = st && st.type === "cohesion";
 
         const zoneBadge =
           st && st.state === "outside"
-            ? '<span class="db-badge out">HORS ZONE</span>'
+            ? `<span class="db-badge out">${coh ? "ÉLOIGNÉ" : "HORS ZONE"}</span>`
             : st && st.state === "inside"
-            ? '<span class="db-badge in">zone OK</span>'
+            ? `<span class="db-badge in">${coh ? "groupé" : "zone OK"}</span>`
             : "";
 
         const batClass = bat == null ? "" : bat < 25 ? "low" : bat < 50 ? "mid" : "";
@@ -201,14 +208,15 @@
               )}%"></span></span><span class="db-bat-val">${bat}%</span>`;
 
         const alertIcons = badges.map((a) => (ALERT_META[a.type] || {}).icon || "⚠️").join(" ");
-        const campTxt = camp ? ` · ${camp.km.toFixed(1)} km du campement` : "";
+        const campTxt = campObj ? ` · ${esc(campObj.name)}` : " · sans camp";
+        const distTxt = di ? ` · ${di.km.toFixed(1)} km ${di.label}` : "";
 
         return `<div class="db-row${badges.length ? " has-alert" : ""}" data-device="${d.id}">
           <div class="db-main">
             <div class="db-name">${esc(d.name)} ${zoneBadge} ${
           alertIcons ? `<span class="db-alerticons">${alertIcons}</span>` : ""
         }</div>
-            <div class="db-sub">${kmh} km/h${campTxt} · ${
+            <div class="db-sub">${kmh} km/h${distTxt}${campTxt} · ${
           pos ? timeAgo(pos.deviceTime) : "aucun signal"
         }${stale && pos ? " · signal perdu" : ""}</div>
           </div>

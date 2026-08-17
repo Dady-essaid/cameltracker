@@ -13,7 +13,8 @@ const Alerts = (() => {
   // Seuils par défaut (modifiables via l'interface).
   const DEFAULTS = {
     enabled: true,
-    outOfZone: true, // alerte de sortie de zone
+    outOfZone: true, // alerte de sortie de zone (camp au campement)
+    cohesion: true, // alerte « s'éloigne du groupe » (camp en déplacement)
     lowBattery: 20, // % : alerte si la batterie descend à/sous cette valeur
     immobilityHours: 6, // h : alerte si immobile depuis ce nombre d'heures
   };
@@ -152,14 +153,29 @@ const Alerts = (() => {
         resolve(s, "battery", d.id);
       }
 
-      // 2) Sortie de zone
+      // 2) Position vis-à-vis du camp : sortie de zone (mode campement) OU
+      //    éloignement du groupe (mode déplacement) — jamais les deux à la fois,
+      //    car le statut d'un chameau ne porte qu'un seul type.
       const st = statusById[d.id];
-      if (cfg.outOfZone && st && st.outside) {
-        const detail =
-          st.distanceKm != null ? ` (à ${st.distanceKm.toFixed(1)} km du campement)` : "";
-        if (raise(s, "zone", d.id, name, `Sortie de zone${detail}`)) newly.push("zone:" + d.id);
-      } else {
+      if (st && st.type === "cohesion") {
+        if (cfg.cohesion && st.outside) {
+          const detail =
+            st.distanceKm != null ? ` (à ${st.distanceKm.toFixed(1)} km du groupe)` : "";
+          if (raise(s, "cohesion", d.id, name, `S'éloigne du groupe${detail}`))
+            newly.push("cohesion:" + d.id);
+        } else {
+          resolve(s, "cohesion", d.id);
+        }
         resolve(s, "zone", d.id);
+      } else {
+        if (cfg.outOfZone && st && st.outside) {
+          const detail =
+            st.distanceKm != null ? ` (à ${st.distanceKm.toFixed(1)} km du campement)` : "";
+          if (raise(s, "zone", d.id, name, `Sortie de zone${detail}`)) newly.push("zone:" + d.id);
+        } else {
+          resolve(s, "zone", d.id);
+        }
+        resolve(s, "cohesion", d.id);
       }
 
       // 3) Immobilité prolongée (ignorée si la position est périmée : plutôt un

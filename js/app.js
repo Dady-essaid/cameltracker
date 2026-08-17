@@ -52,7 +52,13 @@
   // ---------- Rafraîchissement des données ----------
   async function refresh(first) {
     try {
-      if (first || !devices.length) devices = await API.getDevices();
+      if (first || !devices.length) {
+        devices = await API.getDevices();
+        // Migration unique des anciennes zones par-chameau vers des camps.
+        const nameById = {};
+        for (const d of devices) nameById[d.id] = d.name;
+        Camps.migrateFromGeofences(nameById);
+      }
       const positions = await API.getPositions();
       positionsById = {};
       for (const p of positions) positionsById[p.deviceId] = p;
@@ -62,15 +68,14 @@
       for (const d of devices) {
         const pos = positionsById[d.id];
         if (pos) {
-          const gf = Geofence.get(d.id);
-          const st = Geofence.status(pos, gf);
+          const st = Camps.statusFor(d.id, positionsById);
           statusById[d.id] = st;
           CTMap.upsert(d, pos, { status: st });
-          CTMap.setGeofence(d.id, gf, st.outside);
           if (!CTMap.isStale(pos.deviceTime)) online++;
           if (st.outside) outside++;
         }
       }
+      CTMap.renderCamps(Camps.all(), positionsById, statusById);
       renderList();
 
       // Alertes : sortie de zone, immobilité, batterie faible.
@@ -81,7 +86,7 @@
         notify(a);
       }
 
-      const suffix = outside ? ` · ${outside} hors zone` : "";
+      const suffix = outside ? ` · ${outside} à surveiller` : "";
       setStatus(true, `${online}/${devices.length} en ligne${suffix}`);
       if (first) {
         // Arrivée depuis le tableau de bord (index.html?focus=<id>) : on centre
@@ -107,11 +112,12 @@
       const low = bat != null && bat < 25;
       const kmh = pos?.speed != null ? (pos.speed * 1.852).toFixed(1) : "—";
       const st = statusById[d.id];
+      const coh = st && st.type === "cohesion";
       const zone =
         st && st.state === "outside"
-          ? '<span class="zone-badge out">HORS ZONE</span>'
+          ? `<span class="zone-badge out">${coh ? "ÉLOIGNÉ" : "HORS ZONE"}</span>`
           : st && st.state === "inside"
-          ? '<span class="zone-badge in">zone OK</span>'
+          ? `<span class="zone-badge in">${coh ? "groupé" : "zone OK"}</span>`
           : "";
       const item = document.createElement("div");
       item.className = "camel-item";
@@ -136,6 +142,7 @@
   // ---------- Alertes (cloche + panneau) ----------
   const ALERT_META = {
     zone: { icon: "📍", label: "Sortie de zone" },
+    cohesion: { icon: "🧭", label: "S'éloigne du groupe" },
     immobile: { icon: "💤", label: "Immobilité" },
     battery: { icon: "🔋", label: "Batterie faible" },
   };
@@ -238,6 +245,7 @@
     };
     el("alSetEnabled").addEventListener("change", (e) => cfgWrite({ enabled: e.target.checked }));
     el("alSetZone").addEventListener("change", (e) => cfgWrite({ outOfZone: e.target.checked }));
+    el("alSetCohesion").addEventListener("change", (e) => cfgWrite({ cohesion: e.target.checked }));
     el("alSetBattery").addEventListener("change", (e) => {
       const v = Math.max(1, Math.min(100, Number(e.target.value) || 20));
       e.target.value = v;
@@ -256,6 +264,7 @@
     const c = Alerts.config();
     el("alSetEnabled").checked = c.enabled;
     el("alSetZone").checked = c.outOfZone;
+    el("alSetCohesion").checked = c.cohesion;
     el("alSetBattery").value = c.lowBattery;
     el("alSetImmobility").value = c.immobilityHours;
     updateNotifBtn();
