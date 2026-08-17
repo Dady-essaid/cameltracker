@@ -3,11 +3,14 @@ const CTMap = (() => {
   const cfg = window.CT_CONFIG || {};
   let map;
   const markers = {}; // deviceId -> L.marker
+  const fences = {}; // deviceId -> L.circle (zone géofence)
 
-  const camelIcon = (stale) =>
+  const camelIcon = (stale, outside) =>
     L.divIcon({
       className: "",
-      html: `<div class="camel-marker${stale ? " stale" : ""}">
+      html: `<div class="camel-marker${stale ? " stale" : ""}${
+        outside ? " out" : ""
+      }">
                <img src="img/camel.svg" alt="chameau">
              </div>`,
       iconSize: [42, 42],
@@ -54,13 +57,15 @@ const CTMap = (() => {
   }
 
   // Met à jour (ou crée) le marqueur d'un chameau.
-  function upsert(device, pos) {
+  // opts.status : résultat de Geofence.status() (facultatif).
+  function upsert(device, pos, opts = {}) {
     if (!pos) return;
     const stale = isStale(pos.deviceTime);
+    const outside = !!(opts.status && opts.status.outside);
     const latlng = [pos.latitude, pos.longitude];
     let m = markers[device.id];
     if (!m) {
-      m = L.marker(latlng, { icon: camelIcon(stale) }).addTo(map);
+      m = L.marker(latlng, { icon: camelIcon(stale, outside) }).addTo(map);
       m.bindTooltip(device.name, {
         permanent: true,
         direction: "top",
@@ -70,22 +75,51 @@ const CTMap = (() => {
       markers[device.id] = m;
     } else {
       m.setLatLng(latlng);
-      m.setIcon(camelIcon(stale));
+      m.setIcon(camelIcon(stale, outside));
     }
-    m.bindPopup(popupHtml(device, pos), { className: "ct-popup-wrap" });
+    m.bindPopup(popupHtml(device, pos, opts.status), { className: "ct-popup-wrap" });
     m._ctPos = pos;
   }
 
-  function popupHtml(device, pos) {
+  // Dessine / met à jour le cercle de zone d'un chameau.
+  function setGeofence(deviceId, gf, outside) {
+    if (fences[deviceId]) {
+      map.removeLayer(fences[deviceId]);
+      delete fences[deviceId];
+    }
+    if (!gf || !gf.enabled || gf.lat == null) return;
+    fences[deviceId] = L.circle([gf.lat, gf.lon], {
+      radius: gf.radiusKm * 1000,
+      color: outside ? "#b3492f" : "#4f8a3d",
+      weight: 2,
+      opacity: 0.9,
+      fillColor: outside ? "#b3492f" : "#4f8a3d",
+      fillOpacity: 0.07,
+      dashArray: "6 6",
+    }).addTo(map);
+  }
+
+  function popupHtml(device, pos, st) {
     const bat = pos.attributes?.batteryLevel;
     const kmh = pos.speed != null ? (pos.speed * 1.852).toFixed(1) : "—";
     const low = bat != null && bat < 25;
+    let zoneRow = "";
+    if (st && st.state !== "none") {
+      zoneRow = st.outside
+        ? `<div class="row"><b>Zone</b><span class="bat low">HORS ZONE · ${st.distanceKm.toFixed(
+            1
+          )}/${st.radiusKm} km</span></div>`
+        : `<div class="row"><b>Zone</b><span style="color:#4f8a3d;font-weight:700">Dans la zone · ${st.distanceKm.toFixed(
+            1
+          )}/${st.radiusKm} km</span></div>`;
+    }
     return `<div class="ct-popup">
       <h3>${escapeHtml(device.name)}</h3>
       <div class="row"><b>Vitesse</b><span>${kmh} km/h</span></div>
       <div class="row"><b>Batterie</b><span class="bat ${low ? "low" : ""}">${
       bat != null ? bat + " %" : "—"
     }</span></div>
+      ${zoneRow}
       <div class="row"><b>Dernier signal</b><span>${timeAgo(pos.deviceTime)}</span></div>
       <div class="row"><b>Position</b><span>${pos.latitude.toFixed(
         4
@@ -125,5 +159,5 @@ const CTMap = (() => {
     return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   }
 
-  return { init, create, addBaseLayers, upsert, focus, fitAll, isStale, timeAgo, escapeHtml };
+  return { init, create, addBaseLayers, upsert, setGeofence, focus, fitAll, isStale, timeAgo, escapeHtml };
 })();

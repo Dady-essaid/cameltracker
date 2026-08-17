@@ -17,8 +17,11 @@ carte satellite, à partir d'un serveur **Traccar**.
 - ✅ PWA : installable sur l'écran d'accueil, cache des tuiles hors ligne
 - ✅ **Historique des trajets** : sélection chameau + dates, tracé coloré par
   vitesse, points d'arrêt (durée), lecture animée (playback x4–x32)
+- ✅ **Géofencing par chameau** : rayon autorisé propre à chaque chameau
+  (ex. adulte 100 km, petits/été 15 km), campement déplaçable, réglable à tout
+  moment ; statut « dans la zone / HORS ZONE » sur la carte temps réel
 
-À venir : géofencing, alertes/notifications, tableau de bord.
+À venir : alertes/notifications, tableau de bord.
 
 ## Démarrer en local
 
@@ -62,6 +65,7 @@ window.CT_CONFIG = {
 cameltracker/
   index.html        carte temps réel (MVP)
   history.html      historique des trajets + playback
+  geofence.html     zones par chameau (rayon + campement)
   config.js         configuration (URL Traccar, mode démo)
   css/style.css     thème désert, mobile-first
   js/
@@ -69,6 +73,8 @@ cameltracker/
     map.js          carte Leaflet et marqueurs (partagé)
     app.js          logique : login, refresh, liste
     history.js      trajet, arrêts, lecture animée
+    geofence.js     module zones (stockage, distance, in/out)
+    geofence-ui.js  page de gestion des zones
   img/camel.svg     icône chameau
   manifest.json     PWA
   sw.js             service worker (cache tuiles + app shell)

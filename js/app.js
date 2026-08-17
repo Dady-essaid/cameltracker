@@ -3,6 +3,7 @@
   const cfg = window.CT_CONFIG || {};
   let devices = [];
   let positionsById = {};
+  let statusById = {}; // deviceId -> statut géofence
   let timer = null;
 
   const el = (id) => document.getElementById(id);
@@ -57,15 +58,22 @@
       for (const p of positions) positionsById[p.deviceId] = p;
 
       let online = 0;
+      let outside = 0;
       for (const d of devices) {
         const pos = positionsById[d.id];
         if (pos) {
-          CTMap.upsert(d, pos);
+          const gf = Geofence.get(d.id);
+          const st = Geofence.status(pos, gf);
+          statusById[d.id] = st;
+          CTMap.upsert(d, pos, { status: st });
+          CTMap.setGeofence(d.id, gf, st.outside);
           if (!CTMap.isStale(pos.deviceTime)) online++;
+          if (st.outside) outside++;
         }
       }
       renderList();
-      setStatus(true, `${online}/${devices.length} en ligne`);
+      const suffix = outside ? ` · ${outside} hors zone` : "";
+      setStatus(true, `${online}/${devices.length} en ligne${suffix}`);
       if (first) CTMap.fitAll();
     } catch (e) {
       setStatus(false, "Hors ligne");
@@ -83,12 +91,19 @@
       const bat = pos?.attributes?.batteryLevel;
       const low = bat != null && bat < 25;
       const kmh = pos?.speed != null ? (pos.speed * 1.852).toFixed(1) : "—";
+      const st = statusById[d.id];
+      const zone =
+        st && st.state === "outside"
+          ? '<span class="zone-badge out">HORS ZONE</span>'
+          : st && st.state === "inside"
+          ? '<span class="zone-badge in">zone OK</span>'
+          : "";
       const item = document.createElement("div");
       item.className = "camel-item";
       item.innerHTML = `
         <div class="ava"><img src="img/camel.svg" alt=""></div>
         <div class="meta">
-          <div class="name">${CTMap.escapeHtml(d.name)}</div>
+          <div class="name">${CTMap.escapeHtml(d.name)} ${zone}</div>
           <div class="sub">${kmh} km/h · ${
         pos ? CTMap.timeAgo(pos.deviceTime) : "aucun signal"
       }</div>

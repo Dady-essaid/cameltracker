@@ -82,6 +82,21 @@ header .dot.off { background: var(--danger); }
 }
 .camel-marker img { width: 30px; height: 30px; }
 .camel-marker.stale { border-color: #9a9a9a; filter: grayscale(0.6); opacity: 0.75; }
+.camel-marker.out {
+  border-color: var(--danger);
+  box-shadow: 0 0 0 4px rgba(179, 73, 47, 0.35), var(--ombre);
+}
+
+/* Badges de zone (dans la liste des chameaux) */
+.zone-badge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 8px;
+  vertical-align: middle;
+}
+.zone-badge.out { background: var(--danger); color: #fff; }
+.zone-badge.in { background: rgba(79, 138, 61, 0.18); color: var(--ok); }
 .camel-label {
   background: var(--marron);
   color: var(--sable-clair);
@@ -388,6 +403,110 @@ body.hist #map { top: 190px; bottom: 0; }
 }
 .stop-item .dur { font-weight: 600; color: var(--marron); }
 .stop-item .sub { font-size: 12px; color: var(--marron-clair); }
+
+/* La page géofencing n'a pas de panneau latéral : carte pleine largeur */
+body.gf #map { left: 0; }
+
+/* ---- Page géofencing ---- */
+.gf-editor {
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  background: var(--sable-clair);
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+  box-shadow: 0 -4px 16px rgba(60,40,20,0.2);
+  z-index: 900;
+  padding: 14px 16px 18px;
+  max-height: 62vh;
+  overflow-y: auto;
+}
+.gf-editor h3 {
+  margin: 2px 0 12px;
+  color: var(--marron);
+  font-size: 16px;
+  display: flex; align-items: center; gap: 8px;
+}
+.gf-editor .hint { font-size: 12px; color: var(--marron-clair); margin: -6px 0 14px; }
+.gf-field { margin-bottom: 14px; }
+.gf-field label {
+  display: block;
+  font-size: 13px;
+  color: var(--marron-clair);
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+.gf-radius-row { display: flex; align-items: center; gap: 12px; }
+.gf-radius-row input[type=range] { flex: 1; accent-color: var(--marron); }
+.gf-radius-val {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--marron);
+  min-width: 84px;
+  text-align: right;
+}
+.gf-presets { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+.gf-presets .chip {
+  border: 1px solid var(--sable-fonce);
+  background: var(--sable);
+  color: var(--marron);
+  border-radius: 16px;
+  padding: 5px 12px;
+  font-size: 13px;
+  cursor: pointer;
+}
+.gf-presets .chip:active { background: var(--sable-fonce); }
+.gf-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-top: 1px solid var(--sable-fonce);
+  border-bottom: 1px solid var(--sable-fonce);
+}
+.gf-toggle .lab { font-size: 14px; color: var(--marron); font-weight: 600; }
+.switch { position: relative; width: 48px; height: 27px; flex: none; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.switch .track {
+  position: absolute; inset: 0;
+  background: var(--sable-fonce);
+  border-radius: 20px;
+  transition: 0.2s;
+}
+.switch .track::before {
+  content: "";
+  position: absolute;
+  height: 21px; width: 21px;
+  left: 3px; top: 3px;
+  background: #fff;
+  border-radius: 50%;
+  transition: 0.2s;
+}
+.switch input:checked + .track { background: var(--ok); }
+.switch input:checked + .track::before { transform: translateX(21px); }
+.gf-actions { display: flex; gap: 8px; margin-top: 14px; }
+.gf-actions button {
+  flex: 1;
+  padding: 11px;
+  border-radius: 10px;
+  border: none;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.gf-actions .center-btn { background: var(--sable); color: var(--marron); border: 1px solid var(--sable-fonce); }
+.gf-actions .save-btn { background: var(--marron); color: var(--sable-clair); }
+.gf-status {
+  font-size: 13px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  margin-bottom: 12px;
+  text-align: center;
+  font-weight: 600;
+}
+.gf-status.inside { background: rgba(79,138,61,0.15); color: var(--ok); }
+.gf-status.outside { background: rgba(179,73,47,0.15); color: var(--danger); }
+.gf-status.none { background: var(--sable); color: var(--marron-clair); }
+.gf-empty { text-align: center; color: var(--marron-clair); font-size: 14px; padding: 20px; }
 
 /* ---- Écran large : liste à gauche, panneau fixe ---- */
 @media (min-width: 820px) {

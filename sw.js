@@ -1,19 +1,22 @@
 // sw.js — service worker (tuiles hors ligne + app shell)
 // Stratégie : réseau d'abord pour le code (mises à jour immédiates),
 // cache d'abord pour les tuiles satellite (utile hors ligne / connexion lente).
-const SHELL = "ct-shell-v2";
+const SHELL = "ct-shell-v3";
 const TILES = "ct-tiles-v1";
 
 const SHELL_FILES = [
   "./",
   "index.html",
   "history.html",
+  "geofence.html",
   "css/style.css",
   "config.js",
   "js/api.js",
   "js/map.js",
   "js/app.js",
   "js/history.js",
+  "js/geofence.js",
+  "js/geofence-ui.js",
   "img/camel.svg",
   "manifest.json",
   "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css",
