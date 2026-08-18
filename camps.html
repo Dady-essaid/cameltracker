@@ -44,17 +44,10 @@
       </div>
     </div>
 
-    <p class="ce-hint" id="editHint">Touchez la carte pour poser le campement 🏕️</p>
-
     <div id="circleCtrls" class="ce-row">
-      <input id="radius" type="range" min="1" max="150" step="1" value="30">
-      <span class="ce-radius"><b id="radiusVal">30</b> km</span>
-      <div class="ce-presets">
-        <button class="mini-chip" data-km="15" type="button">15</button>
-        <button class="mini-chip" data-km="30" type="button">30</button>
-        <button class="mini-chip" data-km="50" type="button">50</button>
-        <button class="mini-chip" data-km="100" type="button">100</button>
-      </div>
+      <label class="ce-rlab" for="radius">Rayon</label>
+      <input id="radius" class="ce-num" type="number" min="1" max="2000" step="1" value="30" inputmode="numeric">
+      <span class="ce-unit">km</span>
     </div>
 
     <div id="polyCtrls" class="ce-row" hidden>
@@ -68,6 +61,7 @@
       <div id="members" class="pick-chips"></div>
     </div>
 
+    <p class="ce-hint" id="editHint">Touchez la carte pour poser le camp 🏕️</p>
     <div id="gfStatus" class="ce-status none">—</div>
 
     <div class="ce-actions">

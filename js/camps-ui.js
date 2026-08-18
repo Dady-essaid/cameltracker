@@ -30,10 +30,11 @@
     document.querySelectorAll("#typeTabs .tab").forEach((b) =>
       b.addEventListener("click", () => draft && setType(b.dataset.type))
     );
-    el("radius").addEventListener("input", () => { if (!draft) return; draft.geofence.radiusKm = +el("radius").value; refreshCircle(); });
-    document.querySelectorAll(".gf-presets .chip").forEach((c) =>
-      c.addEventListener("click", () => { if (!draft) return; draft.geofence.radiusKm = +c.dataset.km; el("radius").value = draft.geofence.radiusKm; refreshCircle(); })
-    );
+    el("radius").addEventListener("input", () => {
+      if (!draft) return;
+      const v = +el("radius").value;
+      if (v > 0) { draft.geofence.radiusKm = v; refreshCircle(); }
+    });
     el("undoBtn").addEventListener("click", undoPoint);
     el("clearBtn").addEventListener("click", clearPolygon);
 
@@ -263,7 +264,6 @@
     if (draft.geofence.type === "circle") drawCircle();
     else drawPolygon();
     if (fit) fitEdit();
-    el("radiusVal").textContent = draft.geofence.radiusKm;
     updatePolyCount();
     updateStatus();
   }
@@ -276,7 +276,6 @@
   function refreshCircle() {
     const g = draft.geofence;
     if (circle) { circle.setLatLng([g.lat, g.lon]); circle.setRadius(g.radiusKm * 1000); }
-    el("radiusVal").textContent = g.radiusKm;
     updateStatus();
   }
   function drawPolygon() {

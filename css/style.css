@@ -817,17 +817,20 @@ body.camps #map, body.trips #map { position: fixed; top: 52px; left: 0; right: 0
 /* ===== Éditeur de camp compact (carte flottante en haut) ===== */
 .camp-editor {
   position: fixed;
-  top: 58px; left: 8px; right: 8px;
+  top: 58px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(440px, calc(100vw - 16px));
   z-index: 900;
   background: var(--surface);
   border-radius: 16px;
-  box-shadow: var(--ombre);
-  padding: 12px;
+  box-shadow: 0 10px 32px rgba(40, 28, 15, 0.28);
+  padding: 10px;
   max-height: calc(100vh - 74px);
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 9px;
+  gap: 7px;
 }
 .camp-editor .ce-head { display: flex; gap: 8px; align-items: center; }
 .camp-editor #campName {
@@ -841,12 +844,20 @@ body.camps #map, body.trips #map { position: fixed; top: 52px; left: 0; right: 0
 .seg2 { display: flex; gap: 4px; background: var(--sable); border-radius: 10px; padding: 3px; flex: none; }
 .seg2 .tab { border: none; background: transparent; font-size: 16px; padding: 7px 11px; border-radius: 8px; cursor: pointer; color: var(--marron-clair); }
 .seg2 .tab.active { background: var(--marron); color: var(--sable-clair); }
-.ce-hint { font-size: 12px; color: var(--marron-clair); margin: -3px 2px 0; }
+.ce-hint { font-size: 12px; color: var(--marron-clair); margin: 0 2px; }
 .ce-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-.ce-row#circleCtrls #radius { flex: 1; min-width: 110px; accent-color: var(--marron); }
-.ce-radius { font-size: 12.5px; color: var(--marron-clair); white-space: nowrap; }
-.ce-radius b { color: var(--marron); font-size: 15px; }
-.ce-presets { display: flex; gap: 5px; }
+.ce-rlab { font-size: 13px; font-weight: 600; color: var(--marron-clair); }
+.ce-num {
+  width: 82px;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  font-size: 15px;
+  text-align: center;
+  background: #fff;
+  color: var(--texte);
+}
+.ce-unit { font-size: 13px; color: var(--marron-clair); }
 .mini-chip {
   border: 1px solid var(--line);
   background: var(--sable);
@@ -862,8 +873,8 @@ body.camps #map, body.trips #map { position: fixed; top: 52px; left: 0; right: 0
 .ce-members { display: flex; align-items: flex-start; gap: 8px; }
 .ce-members .ce-lab { font-size: 18px; flex: none; margin-top: 4px; }
 .ce-members .pick-chips { flex: 1; }
-.ce-members .pick { padding: 7px 13px; font-size: 13.5px; }
-.ce-status { font-size: 12.5px; padding: 6px 10px; border-radius: 9px; text-align: center; font-weight: 600; }
+.ce-members .pick { padding: 6px 12px; font-size: 13px; }
+.ce-status { font-size: 12px; padding: 5px 10px; border-radius: 8px; text-align: center; font-weight: 600; }
 .ce-status.none { background: var(--sable); color: var(--marron-clair); }
 .ce-status.inside { background: rgba(79, 138, 61, 0.15); color: var(--ok); }
 .ce-status.outside { background: rgba(179, 73, 47, 0.15); color: var(--danger); }
