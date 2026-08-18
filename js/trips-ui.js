@@ -146,7 +146,7 @@
     el("selBar").hidden = true;
     el("tripBar").style.display = "none";
     el("editView").hidden = false;
-    el("pageTitle").textContent = draft.id ? draft.name : "Nouveau déplacement";
+    el("formTitle").textContent = draft.id ? "Modifier le déplacement" : "Nouveau déplacement";
     el("tripName").value = draft.name;
     el("threshold").value = draft.thresholdKm;
     el("thresholdVal").textContent = draft.thresholdKm;
