@@ -37,6 +37,7 @@
   async function refresh() {
     try {
       devices = await API.getDevices();
+      Camels.applyNames(devices);
       const nameById = {};
       for (const d of devices) nameById[d.id] = d.name;
       Camps.migrateFromGeofences(nameById);

@@ -54,7 +54,7 @@ const Camps = (() => {
     if (localStorage.getItem(MIGR_KEY)) return;
     localStorage.setItem(MIGR_KEY, "1");
     if (load().length) return;
-    const gfs = (window.Geofence && Geofence.all && Geofence.all()) || {};
+    const gfs = (typeof Geofence !== "undefined" && Geofence.all && Geofence.all()) || {};
     const list = [];
     for (const [deviceId, gf] of Object.entries(gfs)) {
       if (!gf) continue;

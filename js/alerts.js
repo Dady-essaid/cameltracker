@@ -145,9 +145,12 @@ const Alerts = (() => {
       }
       const stale = now - new Date(pos.deviceTime).getTime() > STALE_MS;
 
+      // Notifications coupées pour ce chameau (page Chameaux) ?
+      const notifOK = (type) => typeof Camels === "undefined" || Camels.notifEnabled(d.id, type);
+
       // 1) Batterie faible
       const bat = pos.attributes && pos.attributes.batteryLevel;
-      if (bat != null && bat <= cfg.lowBattery) {
+      if (bat != null && bat <= cfg.lowBattery && notifOK("battery")) {
         if (raise(s, "battery", d.id, name, `Batterie faible — ${bat}%`)) newly.push("battery:" + d.id);
       } else {
         resolve(s, "battery", d.id);
@@ -158,7 +161,7 @@ const Alerts = (() => {
       //    car le statut d'un chameau ne porte qu'un seul type.
       const st = statusById[d.id];
       if (st && st.type === "trip") {
-        if (cfg.cohesion && st.outside) {
+        if (cfg.cohesion && st.outside && notifOK("trip")) {
           const detail =
             st.distanceKm != null ? ` (à ${st.distanceKm.toFixed(1)} km du berger)` : "";
           if (raise(s, "cohesion", d.id, name, `S'éloigne du berger${detail}`))
@@ -168,10 +171,10 @@ const Alerts = (() => {
         }
         resolve(s, "zone", d.id);
       } else {
-        if (cfg.outOfZone && st && st.outside) {
-          const detail =
-            st.distanceKm != null ? ` (à ${st.distanceKm.toFixed(1)} km du campement)` : "";
-          if (raise(s, "zone", d.id, name, `Sortie de zone${detail}`)) newly.push("zone:" + d.id);
+        if (cfg.outOfZone && st && st.outside && notifOK("camp")) {
+          const camp = st.campName ? ` ${st.campName}` : "";
+          const detail = st.distanceKm != null ? ` (à ${st.distanceKm.toFixed(1)} km)` : "";
+          if (raise(s, "zone", d.id, name, `Sortie du camp${camp}${detail}`)) newly.push("zone:" + d.id);
         } else {
           resolve(s, "zone", d.id);
         }
@@ -183,7 +186,7 @@ const Alerts = (() => {
       const moveAt = lastMoveAt(s, d.id, pos);
       const stillMs = now - moveAt;
       const thresholdMs = cfg.immobilityHours * 3600 * 1000;
-      if (!stale && stillMs >= thresholdMs) {
+      if (!stale && stillMs >= thresholdMs && notifOK("immobile")) {
         const h = Math.floor(stillMs / 3600000);
         if (raise(s, "immobile", d.id, name, `Immobile depuis ${h} h`)) newly.push("immobile:" + d.id);
       } else {

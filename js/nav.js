@@ -4,6 +4,7 @@
   const PAGES = [
     { href: "index.html", icon: "🗺️", label: "Carte" },
     { href: "dashboard.html", icon: "📊", label: "Tableau de bord" },
+    { href: "chameaux.html", icon: "🐫", label: "Chameaux" },
     { href: "camps.html", icon: "🏕️", label: "Camps" },
     { href: "trips.html", icon: "🧭", label: "Déplacements" },
     { href: "notifications.html", icon: "🔔", label: "Alertes" },
@@ -11,8 +12,10 @@
   ];
 
   function currentFile() {
-    const f = location.pathname.split("/").pop();
-    return f && f.length ? f : "index.html";
+    let f = location.pathname.split("/").pop();
+    if (!f || !f.length) f = "index.html";
+    if (f === "camel.html") f = "chameaux.html"; // le profil relève de « Chameaux »
+    return f;
   }
 
   function build() {
@@ -32,7 +35,7 @@
     const drawer = document.createElement("nav");
     drawer.className = "drawer";
     const cur = currentFile();
-    const unread = (window.Alerts && Alerts.unreadCount && Alerts.unreadCount()) || 0;
+    const unread = (typeof Alerts !== "undefined" && Alerts.unreadCount && Alerts.unreadCount()) || 0;
     drawer.innerHTML =
       `<div class="drawer-head"><img src="img/camel.svg" alt=""><b>CamelTracker</b></div>` +
       `<div class="drawer-links">` +

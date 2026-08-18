@@ -54,6 +54,7 @@
     try {
       if (first || !devices.length) {
         devices = await API.getDevices();
+        Camels.applyNames(devices); // noms personnalisés (page Chameaux)
         // Migration unique des anciennes zones par-chameau vers des camps.
         const nameById = {};
         for (const d of devices) nameById[d.id] = d.name;

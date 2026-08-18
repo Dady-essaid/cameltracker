@@ -39,7 +39,7 @@
 
   async function loadDevices() {
     try {
-      const devices = await API.getDevices();
+      const devices = Camels.applyNames(await API.getDevices());
       const sel = el("device");
       sel.innerHTML = "";
       devices.forEach((d) => {

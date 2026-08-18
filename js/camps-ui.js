@@ -43,7 +43,7 @@
 
   async function loadData() {
     try {
-      devices = await API.getDevices();
+      devices = Camels.applyNames(await API.getDevices());
       const pos = await API.getPositions();
       positions = {};
       pos.forEach((p) => (positions[p.deviceId] = p));

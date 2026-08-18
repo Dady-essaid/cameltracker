@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#6b4a2b">
+  <title>CamelTracker — Profil</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="camel-profile">
+
+  <header>
+    <a href="chameaux.html" class="back" title="Retour aux chameaux">←</a>
+    <h1 id="pageTitle">Profil</h1>
+    <div class="status"><span id="statusText"></span></div>
+  </header>
+
+  <main class="profile-wrap">
+    <!-- Hero -->
+    <section class="pf-hero">
+      <div class="pf-avatar"><img src="img/camel.svg" alt=""></div>
+      <input id="pfName" class="pf-name" type="text" placeholder="Nom du chameau" autocomplete="off">
+      <div class="pf-quick">
+        <div class="pf-stat"><b id="pfBattery">—</b><span>batterie</span></div>
+        <div class="pf-stat"><b id="pfSpeed">—</b><span>vitesse</span></div>
+        <div class="pf-stat"><b id="pfPlace">—</b><span>situation</span></div>
+      </div>
+    </section>
+
+    <!-- Fiche -->
+    <section class="pf-card">
+      <h3>Fiche</h3>
+      <div class="pf-field">
+        <label for="pfBirth">🎂 Date de naissance</label>
+        <input id="pfBirth" type="date">
+        <span id="pfAge" class="pf-hint"></span>
+      </div>
+      <div class="pf-field">
+        <label for="pfNotes">📝 Remarques</label>
+        <textarea id="pfNotes" rows="3" placeholder="Notes libres…"></textarea>
+      </div>
+    </section>
+
+    <!-- Vaccinations -->
+    <section class="pf-card">
+      <h3>💉 Vaccinations</h3>
+      <div id="vaxList" class="vax-list"></div>
+      <div class="vax-add">
+        <input id="vaxDate" type="date">
+        <input id="vaxNote" type="text" placeholder="vaccin (optionnel)" autocomplete="off">
+        <button id="vaxAdd" class="chip" type="button">Ajouter</button>
+      </div>
+    </section>
+
+    <!-- Notifications -->
+    <section class="pf-card">
+      <h3>🔔 Notifications</h3>
+      <label class="pf-toggle master"><span>Toutes les alertes de ce chameau</span>
+        <span class="switch"><input type="checkbox" id="nfGlobal"><span class="track"></span></span>
+      </label>
+      <div id="nfDetails" class="nf-details">
+        <label class="pf-toggle"><span>🔋 Batterie faible</span>
+          <span class="switch"><input type="checkbox" id="nfBattery"><span class="track"></span></span></label>
+        <label class="pf-toggle"><span>💤 Immobilité prolongée</span>
+          <span class="switch"><input type="checkbox" id="nfImmobile"><span class="track"></span></span></label>
+        <label class="pf-toggle"><span>📍 Sortie du camp <b id="nfCampName"></b></span>
+          <span class="switch"><input type="checkbox" id="nfCamp"><span class="track"></span></span></label>
+        <label class="pf-toggle"><span>🧭 Éloignement du berger</span>
+          <span class="switch"><input type="checkbox" id="nfTrip"><span class="track"></span></span></label>
+        <label class="pf-toggle"><span>🚧 Sortie de sa zone perso</span>
+          <span class="switch"><input type="checkbox" id="nfGeofence"><span class="track"></span></span></label>
+      </div>
+    </section>
+
+    <!-- Distance & trajet -->
+    <section class="pf-card">
+      <h3>🛰️ Distance & trajet</h3>
+      <div class="pf-daterow">
+        <input id="routeDate" type="date">
+        <button id="routeShow" class="chip" type="button">Afficher</button>
+        <span class="pf-route-km">🐫 <b id="routeKm">—</b></span>
+      </div>
+      <div id="routeMap"></div>
+    </section>
+  </main>
+
+  <div id="toast"></div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/geofence.js"></script>
+  <script src="js/camps.js"></script>
+  <script src="js/trips.js"></script>
+  <script src="js/camels.js"></script>
+  <script src="js/map.js"></script>
+  <script src="js/camel-ui.js"></script>
+  <script src="js/nav.js"></script>
+</body>
+</html>

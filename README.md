@@ -17,6 +17,13 @@ carte satellite, à partir d'un serveur **Traccar**.
 - ✅ PWA : installable sur l'écran d'accueil, cache des tuiles hors ligne
 - ✅ **Historique des trajets** : sélection chameau + dates, tracé coloré par
   vitesse, points d'arrêt (durée), lecture animée (playback x4–x32)
+- ✅ **Page Chameaux + profil** : liste des chameaux → fiche individuelle où on
+  **renomme** le chameau (nom répercuté partout), on ajoute des champs
+  optionnels (date de naissance + âge, **vaccinations**, remarques) et on choisit
+  **par chameau** quelles **notifications** recevoir (global, ou par type :
+  batterie, immobilité, sortie du camp, éloignement du berger, sortie de zone
+  perso). Le profil montre aussi la **distance parcourue et le trajet** pour une
+  date donnée. Menu latéral **☰** pour naviguer entre toutes les sections.
 - ✅ **Camps (bases sédentaires)** : page carto (carte + boutons de camps + ➕).
   Chaque camp a sa **géofence** (cercle rayon/campement déplaçable, ou **forme
   libre** polygone dessinée en plein écran) et ses **chameaux affectés**. On
@@ -82,6 +89,8 @@ window.CT_CONFIG = {
 ```
 cameltracker/
   index.html        carte temps réel (MVP)
+  chameaux.html     liste des chameaux
+  camel.html        profil d'un chameau (fiche + notifs + trajet)
   history.html      historique des trajets + playback
   camps.html        camps sédentaires (carte + boutons + géofence)
   trips.html        déplacements (GPS berger + démarrer/terminer)
@@ -100,6 +109,10 @@ cameltracker/
     trips.js        modèle des déplacements (berger, démarrer/terminer)
     trips-ui.js     page des déplacements
     rules.js        règle unique par chameau (déplacement actif > camp)
+    camels.js       profils des chameaux (nom, champs, notifications)
+    chameaux-ui.js  page liste des chameaux
+    camel-ui.js     page profil d'un chameau
+    nav.js          menu latéral partagé (☰)
     alerts.js       module alertes (zone / berger / immobilité / batterie)
     notifications.js page Alertes (liste + réglages)
     dashboard.js    tableau de bord
