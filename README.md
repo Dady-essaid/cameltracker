@@ -15,38 +15,15 @@ carte satellite, à partir d'un serveur **Traccar**.
 - ✅ Rafraîchissement automatique (30 s par défaut)
 - ✅ Connexion Traccar (session) + **mode démo** sans serveur
 - ✅ PWA : installable sur l'écran d'accueil, cache des tuiles hors ligne
-- ✅ **Historique des trajets** : sélection chameau + dates, tracé coloré par
-  vitesse, points d'arrêt (durée), lecture animée (playback x4–x32)
-- ✅ **Page Chameaux + profil** : liste des chameaux → fiche individuelle où on
-  **renomme** le chameau (nom répercuté partout), on ajoute des champs
-  optionnels (date de naissance + âge, **vaccinations**, remarques) et on choisit
-  **par chameau** quelles **notifications** recevoir (global, ou par type :
-  batterie, immobilité, sortie du camp, éloignement du berger, sortie de zone
-  perso). Le profil montre aussi la **distance parcourue et le trajet** pour une
-  date donnée. Menu latéral **☰** pour naviguer entre toutes les sections.
-- ✅ **Camps (bases sédentaires)** : page carto (carte + boutons de camps + ➕).
-  Chaque camp a sa **géofence** (cercle rayon/campement déplaçable, ou **forme
-  libre** polygone dessinée en plein écran) et ses **chameaux affectés**. On
-  alerte si un chameau sort de la zone de son camp.
-- ✅ **Déplacements (transhumance)** : page séparée. On désigne le **GPS du
-  berger** (le tracker qu'il porte), on affecte les chameaux et un seuil (km),
-  avec un cycle **Démarrer / Terminer**. Tant qu'il est actif, on alerte si un
-  chameau **s'éloigne du berger** au-delà du seuil.
+- ✅ **Camps** : page carto (carte + boutons de camps + ➕). Chaque camp a sa
+  **géofence** (cercle rayon/campement déplaçable posé au doigt, ou **forme
+  libre** polygone) et ses **chameaux affectés**. On voit HORS ZONE sur la carte
+  si un chameau sort de son camp. **Entrer dans un camp** (bouton du camp)
+  n'affiche que **ses chameaux** ; « 🗺️ Tous » réaffiche tout le troupeau.
 
-  Règle unique par chameau : un **déplacement actif prime** sur le camp — donc
-  jamais deux règles à la fois (sortie de zone *ou* éloignement du berger).
-- ✅ **Alertes / notifications** : page dédiée (onglets Alertes / Réglages) +
-  cloche avec badge sur la carte. Quatre types par chameau — **sortie de zone**,
-  **éloignement du berger** (déplacement), **immobilité prolongée** (seuil h) et
-  **batterie faible** (seuil %). Seuils/toggles réglables, toast en direct,
-  historique des alertes résolues, notifications système du navigateur
-  (facultatives). *Push téléphone hors-site : nécessite un serveur (Traccar ou
-  bot) — à venir.*
-- ✅ **Tableau de bord** : synthèse du troupeau — mini-carte (tous les
-  chameaux + zones d'un coup d'œil), **dispersion** (étendue du troupeau) et
-  **chameau le plus éloigné de son campement**, alertes actives, et état par
-  chameau (distance au campement, batterie, vitesse, signal) ; rafraîchi
-  automatiquement.
+> Le site a été volontairement **simplifié** : uniquement la **Carte** et les
+> **Camps**. Les pages Tableau de bord / Chameaux / Déplacements / Alertes /
+> Historique ont été retirées (récupérables dans l'historique git).
 
 ## Démarrer en local
 
@@ -88,34 +65,17 @@ window.CT_CONFIG = {
 
 ```
 cameltracker/
-  index.html        carte temps réel (MVP)
-  chameaux.html     liste des chameaux
-  camel.html        profil d'un chameau (fiche + notifs + trajet)
-  history.html      historique des trajets + playback
-  camps.html        camps sédentaires (carte + boutons + géofence)
-  trips.html        déplacements (GPS berger + démarrer/terminer)
-  notifications.html page Alertes (liste + réglages, onglets)
-  dashboard.html    tableau de bord (mini-carte + dispersion + alertes)
+  index.html        carte temps réel (tous les chameaux)
+  camps.html        camps (carte + boutons + géofence)
   config.js         configuration (URL Traccar, mode démo)
   css/style.css     thème désert, mobile-first
   js/
     api.js          appels API Traccar (+ données démo)
     map.js          carte Leaflet et marqueurs (partagé)
     app.js          logique : login, refresh, liste
-    history.js      trajet, arrêts, lecture animée
     geofence.js     géométrie des zones (distance, in/out, status)
-    camps.js        modèle des camps (sédentaires)
+    camps.js        modèle des camps
     camps-ui.js     page des camps (carto)
-    trips.js        modèle des déplacements (berger, démarrer/terminer)
-    trips-ui.js     page des déplacements
-    rules.js        règle unique par chameau (déplacement actif > camp)
-    camels.js       profils des chameaux (nom, champs, notifications)
-    chameaux-ui.js  page liste des chameaux
-    camel-ui.js     page profil d'un chameau
-    nav.js          menu latéral partagé (☰)
-    alerts.js       module alertes (zone / berger / immobilité / batterie)
-    notifications.js page Alertes (liste + réglages)
-    dashboard.js    tableau de bord
   img/camel.svg     icône chameau
   manifest.json     PWA
   sw.js             service worker (cache tuiles + app shell)

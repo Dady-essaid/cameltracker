@@ -37,13 +37,12 @@
     el("undoBtn").addEventListener("click", undoPoint);
     el("clearBtn").addEventListener("click", clearPolygon);
 
-    renderChips();
-    drawAllCamps();
+    showOverview();
   }
 
   async function loadData() {
     try {
-      devices = Camels.applyNames(await API.getDevices());
+      devices = await API.getDevices();
       const pos = await API.getPositions();
       positions = {};
       pos.forEach((p) => (positions[p.deviceId] = p));
@@ -51,7 +50,7 @@
   }
 
   function drawCamelContext() {
-    camelMarkers.forEach((m) => map.removeLayer(m));
+    camelMarkers.forEach((o) => map.removeLayer(o.marker));
     camelMarkers = [];
     for (const d of devices) {
       const p = positions[d.id];
@@ -59,15 +58,42 @@
       const m = L.marker([p.latitude, p.longitude], { icon: camelIcon() })
         .addTo(map)
         .bindTooltip(d.name, { permanent: true, direction: "top", offset: [0, -22], className: "camel-label" });
-      camelMarkers.push(m);
+      camelMarkers.push({ id: d.id, marker: m });
     }
+  }
+
+  // Affiche seulement les chameaux d'un ensemble (ou tous si null).
+  function showCamels(set) {
+    for (const o of camelMarkers) {
+      const show = !set || set.has(Number(o.id));
+      if (show && !map.hasLayer(o.marker)) o.marker.addTo(map);
+      else if (!show && map.hasLayer(o.marker)) map.removeLayer(o.marker);
+    }
+  }
+
+  // Vue d'ensemble : tous les camps + tous les chameaux.
+  function showOverview() {
+    selectedId = null;
+    el("selBar").hidden = true;
+    renderChips();
+    drawAllCamps();
+    showCamels(null);
   }
 
   // ---------- Boutons de camps ----------
   function renderChips() {
     const bar = el("campBar");
     bar.querySelectorAll(".camp-chip").forEach((c) => c.remove());
-    for (const c of Camps.all()) {
+    const all = Camps.all();
+    if (all.length) {
+      const t = document.createElement("button");
+      t.type = "button";
+      t.className = "chip camp-chip" + (selectedId == null ? " active" : "");
+      t.textContent = "🗺️ Tous";
+      t.addEventListener("click", showOverview);
+      bar.appendChild(t);
+    }
+    for (const c of all) {
       const b = document.createElement("button");
       b.type = "button";
       b.className = "chip camp-chip" + (c.id === selectedId ? " active" : "");
@@ -77,18 +103,20 @@
     }
   }
 
+  // Entrer dans un camp : n'affiche que sa zone et SES chameaux.
   function selectCamp(id) {
+    const camp = Camps.get(id);
+    if (!camp) { showOverview(); return; }
     selectedId = id;
     closeEditSilent();
     renderChips();
-    drawAllCamps();
-    const camp = Camps.get(id);
-    if (!camp) { el("selBar").hidden = true; return; }
+    drawOnlyCamp(camp);
+    showCamels(new Set((camp.members || []).map(Number)));
     fitCamp(camp);
     const n = (camp.members || []).length;
     const names = (camp.members || []).map((m) => (devices.find((d) => d.id === m) || {}).name).filter(Boolean).join(", ");
     el("selName").textContent = camp.name;
-    el("selSub").textContent = `${n} chameau${n > 1 ? "x" : ""}${names ? " · " + names : ""}`;
+    el("selSub").textContent = n ? `${n} chameau${n > 1 ? "x" : ""} · ${names}` : "aucun chameau affecté";
     el("selBar").hidden = false;
   }
 
@@ -100,6 +128,10 @@
       if (draft && draft.id === c.id) continue; // en cours d'édition : dessiné en éditable
       drawGeofenceStatic(c.id, c.geofence || {}, c.id === selectedId);
     }
+  }
+  function drawOnlyCamp(camp) {
+    Object.keys(staticLayers).forEach(removeStatic);
+    if (!(draft && draft.id === camp.id)) drawGeofenceStatic(camp.id, camp.geofence || {}, true);
   }
   function drawGeofenceStatic(id, gf, selected) {
     const color = selected ? "#6b4a2b" : "#4f8a3d";
@@ -134,9 +166,15 @@
     syncTypeUI();
     renderMembers();
     drawAllCamps();
+    showCamels(null); // tous les chameaux visibles pour l'affectation
     setTimeout(() => { map.invalidateSize(); redrawEdit(true); }, 60);
   }
-  function closeEdit() { closeEditSilent(); }
+  function closeEdit() {
+    const wasId = draft && draft.id;
+    closeEditSilent();
+    if (wasId && Camps.get(wasId)) selectCamp(wasId);
+    else showOverview();
+  }
   function closeEditSilent() {
     draft = null;
     el("editSheet").hidden = true;
@@ -144,7 +182,6 @@
     el("pageTitle").textContent = "Camps";
     if (map.doubleClickZoom) map.doubleClickZoom.enable();
     clearEditLayers();
-    drawAllCamps();
   }
 
   function buildDraft(id) {
@@ -327,10 +364,7 @@
   function removeSelected() {
     if (!selectedId) return;
     Camps.remove(selectedId);
-    selectedId = null;
-    el("selBar").hidden = true;
-    renderChips();
-    drawAllCamps();
+    showOverview();
     toast("Camp supprimé");
   }
 

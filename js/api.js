@@ -60,14 +60,11 @@ const DEMO = (() => {
   // Trois chameaux fictifs autour de Nouakchott, avec une dérive aléatoire
   // à chaque appel pour simuler le mouvement.
   // Chameaux fictifs dans le Hodh El Gharbi (autour d'Aïoun el Atrous).
-  // Hamra est volontairement à l'arrêt et en batterie faible pour illustrer
-  // les alertes (immobilité + batterie) dès le mode démo, sans serveur.
+  // Trois chameaux fictifs dans le Hodh El Gharbi (autour d'Aïoun el Atrous).
   const state = [
     { id: 1, name: "Zarga", lat: 16.66, lon: -9.61, battery: 88, speed: 3.2 },
-    { id: 2, name: "Hamra", lat: 16.45, lon: -9.85, battery: 16, speed: 0.0, still: true },
+    { id: 2, name: "Hamra", lat: 16.45, lon: -9.85, battery: 64, speed: 0.0 },
     { id: 3, name: "Azrag", lat: 16.30, lon: -9.45, battery: 41, speed: 5.7 },
-    // Tracker porté par le berger (sert de GPS de référence en déplacement).
-    { id: 4, name: "Berger", lat: 16.55, lon: -9.70, battery: 95, speed: 4.0, guide: true },
   ];
 
   function drift() {
