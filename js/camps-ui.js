@@ -229,25 +229,24 @@
       : "Touchez la carte pour ajouter les points de la zone, puis Enregistrer";
   }
 
+  // Chameaux affichés en puces : on tape pour affecter/retirer.
   function renderMembers() {
     const box = el("members");
     box.innerHTML = "";
     for (const d of devices) {
-      const other = Camps.campOfDevice(d.id);
       const inThis = draft.members.includes(Number(d.id));
-      const inOther = other && other.id !== draft.id;
-      const row = document.createElement("label");
-      row.className = "member";
-      row.innerHTML = `<input type="checkbox" ${inThis ? "checked" : ""} value="${d.id}">
-        <span class="m-name">${CTMap.escapeHtml(d.name)}</span>
-        ${inOther ? `<span class="m-tag">${CTMap.escapeHtml(other.name)}</span>` : ""}`;
-      row.querySelector("input").addEventListener("change", (e) => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "pick" + (inThis ? " active" : "");
+      b.textContent = d.name;
+      b.addEventListener("click", () => {
         const id = Number(d.id);
-        if (e.target.checked) { if (!draft.members.includes(id)) draft.members.push(id); }
-        else draft.members = draft.members.filter((m) => m !== id);
+        if (draft.members.includes(id)) draft.members = draft.members.filter((m) => m !== id);
+        else draft.members.push(id);
+        b.classList.toggle("active");
         updateStatus();
       });
-      box.appendChild(row);
+      box.appendChild(b);
     }
   }
 
@@ -321,16 +320,16 @@
     if (!draft) return;
     const box = el("gfStatus");
     const n = draft.members.length;
-    if (!n) { box.className = "gf-status none"; box.textContent = "Aucun chameau affecté"; return; }
+    if (!n) { box.className = "ce-status none"; box.textContent = "Aucun chameau affecté"; return; }
     const gf = { enabled: true, ...geofenceForCheck() };
     let out = 0, known = 0;
     for (const m of draft.members) {
       const p = positions[m]; if (!p) continue; known++;
       if (Geofence.status(p, gf).outside) out++;
     }
-    if (!known) { box.className = "gf-status none"; box.textContent = `${n} chameau(x) · position inconnue`; }
-    else if (out) { box.className = "gf-status outside"; box.textContent = `${out}/${known} chameau(x) HORS ZONE`; }
-    else { box.className = "gf-status inside"; box.textContent = `Tous dans la zone (${known})`; }
+    if (!known) { box.className = "ce-status none"; box.textContent = `${n} chameau(x) · position inconnue`; }
+    else if (out) { box.className = "ce-status outside"; box.textContent = `${out}/${known} chameau(x) HORS ZONE`; }
+    else { box.className = "ce-status inside"; box.textContent = `Tous dans la zone (${known})`; }
   }
   function geofenceForCheck() {
     return draft.geofence.type === "polygon"

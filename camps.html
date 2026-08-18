@@ -34,45 +34,43 @@
     <button class="chip danger" id="delSelBtn" type="button">🗑️</button>
   </div>
 
-  <!-- Feuille d'ajout / édition -->
-  <div class="edit-sheet" id="editSheet" hidden>
-    <input id="campName" type="text" placeholder="Nom du camp (ex. Campement Nord)" autocomplete="off">
-    <div id="gfStatus" class="gf-status none">—</div>
-
-    <div class="tabs sub" id="typeTabs">
-      <button class="tab active" data-type="circle" type="button">⭕ Cercle</button>
-      <button class="tab" data-type="polygon" type="button">✏️ Forme libre</button>
-    </div>
-
-    <p class="hint" id="editHint">Touchez la carte pour poser le campement 🏕️</p>
-
-    <div id="circleCtrls">
-      <div class="gf-radius-row">
-        <input id="radius" type="range" min="1" max="150" step="1" value="30">
-        <span class="gf-radius-val"><span id="radiusVal">30</span> km</span>
-      </div>
-      <div class="gf-presets">
-        <button class="chip" data-km="15" type="button">15 km</button>
-        <button class="chip" data-km="30" type="button">30 km</button>
-        <button class="chip" data-km="50" type="button">50 km</button>
-        <button class="chip" data-km="100" type="button">100 km</button>
+  <!-- Éditeur de camp : carte compacte flottante -->
+  <div class="camp-editor" id="editSheet" hidden>
+    <div class="ce-head">
+      <input id="campName" type="text" placeholder="Nom du camp" autocomplete="off">
+      <div class="seg2" id="typeTabs">
+        <button class="tab active" data-type="circle" type="button">⭕</button>
+        <button class="tab" data-type="polygon" type="button">✏️</button>
       </div>
     </div>
 
-    <div id="polyCtrls" hidden>
-      <div class="gf-poly-actions">
-        <button id="undoBtn" class="chip" type="button">↩︎ Annuler</button>
-        <button id="clearBtn" class="chip" type="button">🗑️ Effacer</button>
-        <span id="polyCount" class="poly-count">0 point</span>
+    <p class="ce-hint" id="editHint">Touchez la carte pour poser le campement 🏕️</p>
+
+    <div id="circleCtrls" class="ce-row">
+      <input id="radius" type="range" min="1" max="150" step="1" value="30">
+      <span class="ce-radius"><b id="radiusVal">30</b> km</span>
+      <div class="ce-presets">
+        <button class="mini-chip" data-km="15" type="button">15</button>
+        <button class="mini-chip" data-km="30" type="button">30</button>
+        <button class="mini-chip" data-km="50" type="button">50</button>
+        <button class="mini-chip" data-km="100" type="button">100</button>
       </div>
     </div>
 
-    <div class="edit-field">
-      <label>Chameaux de ce camp</label>
-      <div id="members" class="members"></div>
+    <div id="polyCtrls" class="ce-row" hidden>
+      <button id="undoBtn" class="mini-chip" type="button">↩︎ Annuler</button>
+      <button id="clearBtn" class="mini-chip" type="button">🗑️</button>
+      <span id="polyCount" class="poly-count">0 point</span>
     </div>
 
-    <div class="edit-actions">
+    <div class="ce-members">
+      <span class="ce-lab">🐫</span>
+      <div id="members" class="pick-chips"></div>
+    </div>
+
+    <div id="gfStatus" class="ce-status none">—</div>
+
+    <div class="ce-actions">
       <button class="ghost-btn" id="cancelBtn" type="button">Annuler</button>
       <button class="primary grow" id="saveBtn" type="button">Enregistrer</button>
     </div>

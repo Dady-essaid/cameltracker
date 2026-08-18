@@ -1,7 +1,7 @@
 // sw.js — service worker (tuiles hors ligne + app shell)
 // Stratégie : réseau d'abord pour le code (mises à jour immédiates),
 // cache d'abord pour les tuiles satellite (utile hors ligne / connexion lente).
-const SHELL = "ct-shell-v9";
+const SHELL = "ct-shell-v10";
 const TILES = "ct-tiles-v1";
 
 const SHELL_FILES = [
