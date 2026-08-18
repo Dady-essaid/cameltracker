@@ -25,8 +25,9 @@
       if (!el("editView").hidden) { e.preventDefault(); showMap(); }
     });
 
-    el("tripName").addEventListener("input", () => (draft.name = el("tripName").value));
+    el("tripName").addEventListener("input", () => { if (draft) draft.name = el("tripName").value; });
     el("threshold").addEventListener("input", () => {
+      if (!draft) return;
       draft.thresholdKm = +el("threshold").value;
       el("thresholdVal").textContent = draft.thresholdKm;
       updateStatus();

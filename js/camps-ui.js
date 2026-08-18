@@ -25,14 +25,14 @@
     el("delSelBtn").addEventListener("click", removeSelected);
     el("cancelBtn").addEventListener("click", closeEdit);
     el("saveBtn").addEventListener("click", save);
-    el("campName").addEventListener("input", () => (draft.name = el("campName").value));
+    el("campName").addEventListener("input", () => { if (draft) draft.name = el("campName").value; });
 
     document.querySelectorAll("#typeTabs .tab").forEach((b) =>
-      b.addEventListener("click", () => setType(b.dataset.type))
+      b.addEventListener("click", () => draft && setType(b.dataset.type))
     );
-    el("radius").addEventListener("input", () => { draft.geofence.radiusKm = +el("radius").value; refreshCircle(); });
+    el("radius").addEventListener("input", () => { if (!draft) return; draft.geofence.radiusKm = +el("radius").value; refreshCircle(); });
     document.querySelectorAll(".gf-presets .chip").forEach((c) =>
-      c.addEventListener("click", () => { draft.geofence.radiusKm = +c.dataset.km; el("radius").value = draft.geofence.radiusKm; refreshCircle(); })
+      c.addEventListener("click", () => { if (!draft) return; draft.geofence.radiusKm = +c.dataset.km; el("radius").value = draft.geofence.radiusKm; refreshCircle(); })
     );
     el("undoBtn").addEventListener("click", undoPoint);
     el("clearBtn").addEventListener("click", clearPolygon);
