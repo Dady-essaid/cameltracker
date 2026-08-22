@@ -50,53 +50,18 @@
     timer = setInterval(() => refresh(false), cfg.refreshInterval || 30000);
   }
 
-  // ---------- Repères nommés sur la carte ----------
-  const POINTS_KEY = "ct_points";
-  let pointLayers = [];
-  const loadPoints = () => { try { return JSON.parse(localStorage.getItem(POINTS_KEY)) || []; } catch { return []; } };
-  const savePoints = (a) => localStorage.setItem(POINTS_KEY, JSON.stringify(a));
-
-  function landmarkIcon() {
-    return L.divIcon({ className: "", html: '<div class="landmark">📍</div>', iconSize: [26, 30], iconAnchor: [13, 30] });
-  }
-  function renderPoints() {
-    const m = CTMap.getMap();
-    if (!m) return;
-    pointLayers.forEach((l) => m.removeLayer(l));
-    pointLayers = [];
-    for (const p of loadPoints()) {
-      const mk = L.marker([p.lat, p.lon], { icon: landmarkIcon() })
-        .addTo(m)
-        .bindTooltip(p.name, { permanent: true, direction: "top", offset: [0, -26], className: "point-label" });
-      mk.on("click", () => {
-        if (confirm(`Supprimer le repère « ${p.name} » ?`)) {
-          savePoints(loadPoints().filter((x) => x.id !== p.id));
-          renderPoints();
-        }
-      });
-      pointLayers.push(mk);
-    }
-  }
-  function addPointAt(latlng) {
-    const name = (prompt("Nom du repère (ex. Puits, Campement, Village) :") || "").trim();
-    if (!name) return;
-    const pts = loadPoints();
-    pts.push({ id: "pt_" + Date.now().toString(36), name, lat: latlng.lat, lon: latlng.lng });
-    savePoints(pts);
-    renderPoints();
-    toast(`Repère « ${name} » ajouté`);
-  }
+  // ---------- Repères nommés sur la carte (double-clic / Ctrl+M) ----------
   function setupPoints() {
     const m = CTMap.getMap();
     if (!m) return;
     m.doubleClickZoom.disable(); // double-clic = nommer un point (pas zoomer)
-    m.on("dblclick", (e) => addPointAt(e.latlng));
-    renderPoints();
+    m.on("dblclick", (e) => { if (Points.addPrompt(m, e.latlng)) toast("Repère ajouté"); });
+    Points.render(m, true);
     document.addEventListener("keydown", (e) => {
       if ((e.ctrlKey || e.metaKey) && (e.key === "m" || e.key === "M")) {
         e.preventDefault();
         const map2 = CTMap.getMap();
-        if (map2) addPointAt(map2.getCenter());
+        if (map2 && Points.addPrompt(map2, map2.getCenter())) toast("Repère ajouté");
       }
     });
   }

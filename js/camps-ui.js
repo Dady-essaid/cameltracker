@@ -19,6 +19,7 @@
     map.on("click", onMapClick);
     await loadData();
     drawCamelContext();
+    Points.render(map, false); // repères nommés (lecture seule ici)
 
     el("addCampBtn").addEventListener("click", () => openEdit(null));
     el("editSelBtn").addEventListener("click", () => selectedId && openEdit(selectedId));
@@ -361,6 +362,9 @@
   }
   function removeSelected() {
     if (!selectedId) return;
+    const camp = Camps.get(selectedId);
+    const name = camp ? camp.name : "ce camp";
+    if (!confirm(`Supprimer le camp « ${name} » ? Cette action est définitive.`)) return;
     Camps.remove(selectedId);
     showOverview();
     toast("Camp supprimé");
