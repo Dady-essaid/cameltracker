@@ -260,5 +260,7 @@ const CTMap = (() => {
     return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   }
 
-  return { init, create, addBaseLayers, upsert, renderCamps, renderTrips, focus, fitAll, isStale, timeAgo, escapeHtml };
+  function getMap() { return map; }
+
+  return { init, create, getMap, addBaseLayers, upsert, renderCamps, renderTrips, focus, fitAll, isStale, timeAgo, escapeHtml };
 })();
