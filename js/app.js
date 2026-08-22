@@ -144,13 +144,6 @@
     el("recenter").addEventListener("click", () => CTMap.fitAll());
   }
 
-  // ---------- PWA : service worker ----------
-  if ("serviceWorker" in navigator) {
-    window.addEventListener("load", () =>
-      navigator.serviceWorker.register("sw.js").catch(() => {})
-    );
-  }
-
   // ---------- Init ----------
   document.addEventListener("DOMContentLoaded", () => {
     setupUI();

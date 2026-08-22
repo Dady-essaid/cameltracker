@@ -22,19 +22,34 @@ const CTMap = (() => {
   const MAX_ZOOM = cfg.maxZoom || 21; // sur-zoom (tuiles natives jusqu'à 18)
 
   function addBaseLayers(m) {
-    L.tileLayer(
+    // Fond satellite (Esri) + noms de lieux/frontières par-dessus.
+    const imagery = L.tileLayer(
       "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
       {
         maxZoom: MAX_ZOOM,
         maxNativeZoom: 18, // au-delà de 18 : agrandissement des tuiles (sur-zoom)
-        attribution:
-          "Tuiles &copy; Esri — Source: Esri, Maxar, Earthstar Geographics",
+        attribution: "Tuiles &copy; Esri — Source: Esri, Maxar, Earthstar Geographics",
       }
-    ).addTo(m);
-    L.tileLayer(
+    );
+    const labels = L.tileLayer(
       "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}",
       { maxZoom: MAX_ZOOM, maxNativeZoom: 18, opacity: 0.9 }
-    ).addTo(m);
+    );
+    const satellite = L.layerGroup([imagery, labels]).addTo(m);
+
+    // Fond plan (rues/lieux) en alternative.
+    const plan = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 19,
+      attribution: "&copy; OpenStreetMap",
+    });
+
+    L.control
+      .layers(
+        { "🛰️ Satellite": satellite, "🗺️ Plan": plan },
+        {},
+        { position: "topright", collapsed: true }
+      )
+      .addTo(m);
     return m;
   }
 
