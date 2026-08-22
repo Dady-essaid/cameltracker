@@ -310,8 +310,8 @@
     drawPolygon();
     updateStatus();
   }
-  function undoPoint() { if (draft.geofence.points.length) { draft.geofence.points.pop(); redrawPoly(); } }
-  function clearPolygon() { draft.geofence.points = []; redrawPoly(); }
+  function undoPoint() { if (draft && draft.geofence.points.length) { draft.geofence.points.pop(); redrawPoly(); } }
+  function clearPolygon() { if (!draft) return; draft.geofence.points = []; redrawPoly(); }
   function updatePolyCount() { const n = draft.geofence.points.length; el("polyCount").textContent = n <= 1 ? `${n} point` : `${n} points`; }
 
   // ---------- Statut ----------

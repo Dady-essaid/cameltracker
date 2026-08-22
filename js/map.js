@@ -19,18 +19,21 @@ const CTMap = (() => {
     });
 
   // Ajoute le fond satellite + labels sur une carte donnée (partagé entre pages).
+  const MAX_ZOOM = cfg.maxZoom || 21; // sur-zoom (tuiles natives jusqu'à 18)
+
   function addBaseLayers(m) {
     L.tileLayer(
       "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
       {
-        maxZoom: 18,
+        maxZoom: MAX_ZOOM,
+        maxNativeZoom: 18, // au-delà de 18 : agrandissement des tuiles (sur-zoom)
         attribution:
           "Tuiles &copy; Esri — Source: Esri, Maxar, Earthstar Geographics",
       }
     ).addTo(m);
     L.tileLayer(
       "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}",
-      { maxZoom: 18, opacity: 0.9 }
+      { maxZoom: MAX_ZOOM, maxNativeZoom: 18, opacity: 0.9 }
     ).addTo(m);
     return m;
   }
@@ -39,9 +42,10 @@ const CTMap = (() => {
   function create(elId, opts = {}) {
     const m = L.map(elId, {
       zoomControl: false,
-      minZoom: cfg.minZoom || 6,
+      minZoom: cfg.minZoom || 4,
+      maxZoom: MAX_ZOOM,
+      zoomSnap: 0.5, // zoom plus fin (paliers de 0,5)
       maxBounds: cfg.bounds ? L.latLngBounds(cfg.bounds) : undefined,
-      maxBoundsViscosity: 1.0, // "colle" la vue aux frontières de la Mauritanie
     }).setView(
       opts.center || cfg.defaultCenter || [16.5, -9.7],
       opts.zoom || cfg.defaultZoom || 8

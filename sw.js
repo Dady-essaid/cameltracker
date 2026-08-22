@@ -1,7 +1,7 @@
 // sw.js — service worker (tuiles hors ligne + app shell)
 // Stratégie : réseau d'abord pour le code (mises à jour immédiates),
 // cache d'abord pour les tuiles satellite (utile hors ligne / connexion lente).
-const SHELL = "ct-shell-v11";
+const SHELL = "ct-shell-v12";
 const TILES = "ct-tiles-v1";
 
 const SHELL_FILES = [
@@ -62,10 +62,12 @@ self.addEventListener("fetch", (e) => {
   // Ne pas mettre en cache les appels API (positions temps réel).
   if (url.includes("/api/")) return;
 
-  // App shell (HTML/JS/CSS) : réseau d'abord, cache en secours (hors ligne).
+  // App shell (HTML/JS/CSS) : réseau d'abord en CONTOURNANT le cache HTTP
+  // ({cache:"reload"}), pour toujours obtenir la dernière version (évite les
+  // mélanges anciens/nouveaux fichiers). Cache en secours hors ligne.
   if (e.request.method === "GET") {
     e.respondWith(
-      fetch(e.request)
+      fetch(e.request, { cache: "reload" })
         .then((res) => {
           const copy = res.clone();
           caches.open(SHELL).then((c) => c.put(e.request, copy)).catch(() => {});
