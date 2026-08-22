@@ -22,30 +22,41 @@ const CTMap = (() => {
   const MAX_ZOOM = cfg.maxZoom || 21; // sur-zoom (tuiles natives jusqu'à 18)
 
   function addBaseLayers(m) {
-    // Fond satellite (Esri) + noms de lieux/frontières par-dessus.
-    const imagery = L.tileLayer(
-      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
-      {
-        maxZoom: MAX_ZOOM,
-        maxNativeZoom: 18, // au-delà de 18 : agrandissement des tuiles (sur-zoom)
-        attribution: "Tuiles &copy; Esri — Source: Esri, Maxar, Earthstar Geographics",
-      }
-    );
-    const labels = L.tileLayer(
-      "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}",
-      { maxZoom: MAX_ZOOM, maxNativeZoom: 18, opacity: 0.9 }
-    );
-    const satellite = L.layerGroup([imagery, labels]).addTo(m);
-
-    // Fond plan (rues/lieux) en alternative.
-    const plan = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      maxZoom: 19,
-      attribution: "&copy; OpenStreetMap",
+    const gSub = ["0", "1", "2", "3"];
+    // Google Hybride : satellite haute résolution + noms de lieux/routes.
+    const gHybride = L.tileLayer("https://mt{s}.google.com/vt/lyrs=y&x={x}&y={y}&z={z}", {
+      maxZoom: MAX_ZOOM,
+      subdomains: gSub,
+      attribution: "&copy; Google",
     });
+    // Google Satellite pur (sans noms).
+    const gSat = L.tileLayer("https://mt{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}", {
+      maxZoom: MAX_ZOOM,
+      subdomains: gSub,
+      attribution: "&copy; Google",
+    });
+    // Google Plan (routes / lieux).
+    const gPlan = L.tileLayer("https://mt{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}", {
+      maxZoom: MAX_ZOOM,
+      subdomains: gSub,
+      attribution: "&copy; Google",
+    });
+    // Secours : Esri (si Google est bloqué sur le réseau).
+    const esri = L.tileLayer(
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+      { maxZoom: MAX_ZOOM, maxNativeZoom: 18, attribution: "&copy; Esri" }
+    );
+
+    gHybride.addTo(m); // fond par défaut
 
     L.control
       .layers(
-        { "🛰️ Satellite": satellite, "🗺️ Plan": plan },
+        {
+          "🛰️ Satellite + noms": gHybride,
+          "🛰️ Satellite": gSat,
+          "🗺️ Plan": gPlan,
+          "🌍 Esri (secours)": esri,
+        },
         {},
         { position: "topright", collapsed: true }
       )
